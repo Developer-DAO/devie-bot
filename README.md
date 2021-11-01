@@ -17,3 +17,5 @@ with that done you will be able to run `ts-node deploy-commands.ts` to create al
 After that you can start the bot by running `ts-node index.ts` to spin up the server. at this point you can look at the available commands by typing `/` in your chat bot.
 
 Currently there's a `ping` command, and a `add-resource` command.
+
+Please ping me in the discord should you have any questions! `@NoahH`
