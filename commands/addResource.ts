@@ -1,6 +1,7 @@
 import { SlashCommandBuilder } from '@discordjs/builders';
 import { CommandInteraction, Message } from 'discord.js';
 import isValidUrl from '../utils/urlChecker';
+import axios from 'axios';
 
 export const data = new SlashCommandBuilder()
     .setName('add-resource')
