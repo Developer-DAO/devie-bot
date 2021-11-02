@@ -7,7 +7,7 @@ export const data = new SlashCommandBuilder()
     .setDescription('add yourself to the contributor list')
 
 export async function execute(interaction: CommandInteraction) {
-    if (isContributor(interaction.user.discriminator)) {
+    if (await isContributor(interaction.user.discriminator)) {
         interaction.reply('Sorry! You can not add yourself because you are already a contributor!')
         return
     }

@@ -17,7 +17,8 @@ const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
         const rest = new REST({ version: '9' }).setToken(process!.env.DISCORD_TOKEN!)
         try {
-            rest.put(Routes.applicationGuildCommands('903496340351373352', '904099881323487253'), { body: commands })
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            rest.put(Routes.applicationGuildCommands(process!.env.CLIENT_ID!, process!.env.GUILD_ID!), { body: commands })
                 .then(() => console.log('registered / commands'))
                 .catch(console.error)
         }

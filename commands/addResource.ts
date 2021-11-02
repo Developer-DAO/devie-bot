@@ -7,7 +7,7 @@ export const data = new SlashCommandBuilder()
     .setDescription('Adds your link to the knowledgebase (must be airtable link)')
     .addStringOption(
         option => option.setRequired(true)
-        .setName('resource link')
+        .setName('input')
         .setDescription('Enter a link to a resource'))
 
 export async function execute(interaction: CommandInteraction) {
