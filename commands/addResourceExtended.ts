@@ -3,7 +3,7 @@ import { CommandInteraction, Message, MessageEmbed } from 'discord.js';
 import isValidUrl from '../utils/urlChecker';
 
 import { setCategorySelection, setBlockchainSelection, setLevelSelection, setMediaTypeSelection, setTagSelection } from './menuSelections';
-import { Resource } from '../types';
+import { ResourceBuilder } from '../utils/resourceBuilder';
 
 export const data = new SlashCommandBuilder()
     .setName('add-resource-extended')
@@ -13,7 +13,7 @@ export const data = new SlashCommandBuilder()
         .setName('url')
         .setDescription('Enter a link to a resource'));
 
-function ConfigureEmbed(embed: MessageEmbed, resource: Resource): MessageEmbed {
+function ConfigureEmbed(embed: MessageEmbed, resource: ResourceBuilder): MessageEmbed {
   embed.setAuthor(resource.author ?? 'Author');
   embed.setTitle(resource.title ?? 'Title');
   embed.setURL(resource.source ?? 'Source');
@@ -29,7 +29,7 @@ function ConfigureEmbed(embed: MessageEmbed, resource: Resource): MessageEmbed {
   return embed;
 }
 
-function UpdateEmbed(embed: MessageEmbed, embedMessage: Message, resource: Resource): void {
+function UpdateEmbed(embed: MessageEmbed, embedMessage: Message, resource: ResourceBuilder): void {
   const updatedEmbed = ConfigureEmbed(new MessageEmbed(embed), resource);
   embedMessage.edit({ embeds: [updatedEmbed] })
 }
@@ -44,7 +44,7 @@ export async function execute(interaction: CommandInteraction) {
     // TODO: Ask the user for their NFT ID if they have not contributed before
 
     if (isValidUrl(userInput)) {
-        const newResource = new Resource();
+        const newResource = new ResourceBuilder();
         newResource.source = userInput;
         const filter = (m: Message) => interaction.user.id === m.author.id;
         await interaction.reply({ content: 'Please complete the addition process in the DM you just received', ephemeral: true });
@@ -53,6 +53,10 @@ export async function execute(interaction: CommandInteraction) {
         await dmChannel.send('Please enter more information about the article');
 
         // TODO: Work out how to add an Author
+        newResource.author = 'Testing'
+
+        // TODO: Work out how to add a Contributor
+        newResource.contributor = 'Testing'
 
         const resourceEmbed = ConfigureEmbed(new MessageEmbed(), newResource);
         const embedMessage = await dmChannel.send({ embeds: [resourceEmbed] });
@@ -105,7 +109,7 @@ export async function execute(interaction: CommandInteraction) {
         categoryMessage.delete();
         UpdateEmbed(resourceEmbed, embedMessage, newResource);
 
-        console.log(newResource);
+        console.log(newResource.build());
         // TODO: Send this to AirTable
     }
     else {
