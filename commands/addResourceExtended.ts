@@ -47,7 +47,7 @@ export async function execute(interaction: CommandInteraction) {
         const newResource = new Resource();
         newResource.source = userInput;
         const filter = (m: Message) => interaction.user.id === m.author.id;
-        await interaction.reply('Please complete the addition process in the DM you just received');
+        await interaction.reply({ content: 'Please complete the addition process in the DM you just received', ephemeral: true });
         const dmChannel = await interaction.user.createDM();
 
         await dmChannel.send('Please enter more information about the article');
