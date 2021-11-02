@@ -10,7 +10,7 @@ export class ResourceBuilder {
   public source?: string;
   public level?: string;
   public mediaType?: string;
-  public blockchain?: string[];
+  public blockchain: string[];
   public category?: string[];
   public tags?: string[];
 
@@ -34,9 +34,6 @@ export class ResourceBuilder {
       throw new ResourceBuilderError('Unable to build incomplete Resource')
     }
     if (this.mediaType == null || this.mediaType === undefined || this.mediaType.trim().length === 0) {
-      throw new ResourceBuilderError('Unable to build incomplete Resource')
-    }
-    if (this.blockchain == null || this.blockchain === undefined || this.blockchain.length === 0) {
       throw new ResourceBuilderError('Unable to build incomplete Resource')
     }
     if (this.category == null || this.category === undefined || this.category.length === 0) {
