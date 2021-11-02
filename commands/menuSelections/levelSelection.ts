@@ -1,5 +1,6 @@
 import { DMChannel, MessageActionRow, MessageSelectMenu } from 'discord.js';
 
+// TODO: Load these values from the appropriate table in AirTable
 export const setLevelSelection = async (dmChannel: DMChannel) => {
   const row = new MessageActionRow().addComponents(
     new MessageSelectMenu()

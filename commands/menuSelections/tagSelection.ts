@@ -1,5 +1,6 @@
 import { DMChannel, MessageActionRow, MessageSelectMenu } from 'discord.js';
 
+// TODO: Load these values from the appropriate table in AirTable
 export const setTagSelection = async (dmChannel: DMChannel) => {
   const options = [
       {
