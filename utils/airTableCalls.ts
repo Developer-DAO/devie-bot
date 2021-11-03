@@ -1,27 +1,40 @@
 import Airtable from 'airtable';
 import dotenv from 'dotenv'
+import isDiscordId from './discordIdChecker'
 
 dotenv.config()
 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-const base = new Airtable({ apiKey: 'keyuXGvCSuSPgPJUi' }).base('app5gBnmcY3h9txt0')
-export async function isContributor(discordIdOfCommandCaller: string) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const discordHandles: any[] = []
-    const table = base('Contributor')
+const BASE = new Airtable({ apiKey: process.env.AIRTABLE_TOKEN! }).base(process.env.AIRTABLE_BASE!)
+
+export async function isContributor(discordHandleOfCommandCaller: string) {
+    const table = BASE('Contributor')
     const contributors = await table.select({
         // eslint-disable-next-line quotes
-        filterByFormula: "NOT({Discord Handle} = '')",
+        filterByFormula: "NOT({DiscordId} = '')",
     }).all();
     for (const record of contributors) {
-        const discordHandle = record.fields['Discord Handle']
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        discordHandles.push(discordHandle.split('#')[1])
-    }
-    for (const digits of discordHandles) {
-        if (discordIdOfCommandCaller === digits) {
+        if (discordHandleOfCommandCaller === record.fields.DiscordId) {
             return true
         }
     }
     return false
+}
+
+export async function createContributor(discordIdOfCommandCaller: string) {
+    if (isDiscordId(discordIdOfCommandCaller)) {
+        const table = BASE('Contributor')
+        table.create([
+            {
+                'fields': {
+                    'DiscordId' : `${discordIdOfCommandCaller}`,
+                },
+            },
+        ], (err, records) => {
+            if (err) {
+                console.error(err)
+                return
+            }
+            records?.forEach((record) => console.log(record.getId))
+        })
+    }
 }

@@ -1,6 +1,6 @@
 import { SlashCommandBuilder } from '@discordjs/builders';
 import { CommandInteraction } from 'discord.js';
-import { isContributor } from '../utils/airTableCalls';
+import { isContributor, createContributor } from '../utils/index';
 
 export const data = new SlashCommandBuilder()
     .setName('add-contributor')
@@ -11,5 +11,8 @@ export async function execute(interaction: CommandInteraction) {
         interaction.reply('Sorry! You can not add yourself because you are already a contributor!')
         return
     }
-    // add some shit here to add someone as a contributor
+    await createContributor(interaction.user.id)
+    interaction.reply({ content: 'You added yourself as a contributer! Congrats', ephemeral: true })
+    return
+
 }

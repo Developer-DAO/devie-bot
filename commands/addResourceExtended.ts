@@ -1,9 +1,7 @@
-import { SlashCommandBuilder } from '@discordjs/builders';
+import { SlashCommandBuilder, inlineCode } from '@discordjs/builders';
 import { CommandInteraction, Message, MessageEmbed } from 'discord.js';
-import isValidUrl from '../utils/urlChecker';
-
+import { ResourceBuilder, isContributor, isValidUrl } from '../utils/index';
 import { setCategorySelection, setBlockchainSelection, setLevelSelection, setMediaTypeSelection, setTagSelection } from './menuSelections';
-import { ResourceBuilder } from '../utils/resourceBuilder';
 
 export const data = new SlashCommandBuilder()
     .setName('add-resource-extended')
@@ -35,8 +33,12 @@ function UpdateEmbed(embed: MessageEmbed, embedMessage: Message, resource: Resou
 }
 
 export async function execute(interaction: CommandInteraction) {
-    const userInput = interaction.options.getString('url')
-    if (userInput === undefined || userInput == null) {
+  if (!await isContributor(interaction.user.id)) {
+    await interaction.reply(`it looks like you are not a contributor yet!\nPlease add yourself using: ${inlineCode('/add-contributor')}`)
+    return
+  }
+  const userInput = interaction.options.getString('url')
+  if (userInput === undefined || userInput == null) {
       return;
     }
 
@@ -113,6 +115,7 @@ export async function execute(interaction: CommandInteraction) {
         // TODO: Send this to AirTable
     }
     else {
-      console.log('Something went wrong here?');
+      await interaction.reply({ content: 'Invalid URL! Please try again.', ephemeral: true })
+      return
     }
 }

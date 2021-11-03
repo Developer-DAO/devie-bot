@@ -1,7 +1,6 @@
 import { SlashCommandBuilder, inlineCode } from '@discordjs/builders';
 import { CommandInteraction, Message } from 'discord.js';
-import isValidUrl from '../utils/urlChecker';
-import { isContributor } from '../utils/airTableCalls';
+import { isContributor, isValidUrl } from '../utils/index';
 export const data = new SlashCommandBuilder()
     .setName('add-resource')
     .setDescription('Adds your link to the knowledgebase (must be airtable link)')
@@ -11,7 +10,6 @@ export const data = new SlashCommandBuilder()
         .setDescription('Enter a link to a resource'))
 
 export async function execute(interaction: CommandInteraction) {
-    console.log(interaction.user.discriminator)
     if (!await isContributor(interaction.user.id)) {
         await interaction.reply(`it looks like you are not a contributor yet!\nPlease add yourself using: ${inlineCode('/add-contributor')}`)
         return

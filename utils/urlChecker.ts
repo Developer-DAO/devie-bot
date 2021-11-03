@@ -1,4 +1,4 @@
-export default function isValidUrl(userInput: string) {
+export function isValidUrl(userInput: string) {
     let url_string;
     try {
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
