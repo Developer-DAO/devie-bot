@@ -1,6 +1,6 @@
 # discord-resource-bot
-This bot will allow users to use /commands in discord to add resources to our knowledge base on airtable.
 
+This bot will allow users to use /commands in discord to add resources to our knowledge base on airtable.
 
 Currently to run this you will need to create a discord bot following [this](https://discordjs.guide/#before-you-begin) tutorial.
 
@@ -12,10 +12,28 @@ GUILD_ID=
 CLIENT_ID=
 ```
 
-with that done you will be able to run `ts-node deploy-commands.ts` to create all of your commands.
+Once you have created your bot and added the environment variables above, you can create all its commands by running:
 
-After that you can start the bot by running `ts-node index.ts` to spin up the server. at this point you can look at the available commands by typing `/` in your chat bot.
+```
+npm run deploy:commands
+```
+
+After that you can start the bot server by running:
+
+```
+npm run server
+```
+
+At this point you can look at the available commands by typing `/` in your chat bot.
 
 Currently there's a `ping` command, and a `add-resource` command.
 
-Please ping me in the discord should you have any questions! `@NoahH`
+Please ping `@NoahH` in the discord should you have any questions!
+
+## Linting
+
+To check if your code will compile and is linted appropriately, you can run:
+
+```
+npm run lint
+```

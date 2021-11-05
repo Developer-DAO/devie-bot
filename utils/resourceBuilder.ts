@@ -10,7 +10,7 @@ export class ResourceBuilder {
   public source?: string;
   public level?: string;
   public mediaType?: string;
-  public blockchain: string[];
+  public blockchain?: string[];
   public category?: string[];
   public tags?: string[];
 
@@ -50,7 +50,7 @@ export class ResourceBuilder {
       this.source.trim(),
       this.level.trim(),
       this.mediaType.trim(),
-      this.blockchain,
+      this.blockchain || [],
       this.category,
       this.tags,
     );
