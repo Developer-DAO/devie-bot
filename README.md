@@ -32,7 +32,7 @@ Please ping `@NoahH` in the discord should you have any questions!
 
 ## Linting
 
-To check your code will compile and is linted appropriately, you can run:
+To check if your code will compile and is linted appropriately, you can run:
 
 ```
 npm run lint
