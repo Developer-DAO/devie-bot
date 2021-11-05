@@ -3,7 +3,7 @@
     "fmt": "eslint . --fix",
     "lint": "tsc --noEmit && eslint .",
     "deploy:commands": "ts-node deploy-commands.ts",
-    "server": "ts-node index.ts"
+    "dev": "ts-node index.ts"
   },
   "dependencies": {
     "@discordjs/builders": "^0.8.1",
