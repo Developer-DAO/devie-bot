@@ -57,19 +57,20 @@ export async function execute(interaction: CommandInteraction) {
 
   const author = getSanitizedAuthorInfo(interaction);
   const { name, isDaoMember, twitterUrl, youtubeUrl } = author;
+  const invalidUrlType = [];
   if (twitterUrl !== '' && !isValidUrl(twitterUrl)) {
-    await interaction.reply({
-      content: 'Invalid Twitter URL: ${twitterUrl}',
-      ephemeral: true,
-    })
-    return;
+    invalidUrlType.push(`Twitter URL (${twitterUrl})`);
   }
 
   if (youtubeUrl !== '' && !isValidUrl(youtubeUrl)) {
+    invalidUrlType.push(`YouTube URL (${youtubeUrl})`);
+  }
+
+  if (invalidUrlType.length > 0) {
     await interaction.reply({
-      content: 'Invalid Twitter URL: ${twitterUrl}',
+      content: `Invalid ${invalidUrlType.join(' and')}`,
       ephemeral: true,
-    })
+    });
     return;
   }
 
