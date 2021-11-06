@@ -74,18 +74,19 @@ export async function execute(interaction: CommandInteraction) {
     return;
   }
 
+  const blankSpaceField = '\u200b';
   const authorEmbed = new MessageEmbed()
     .setColor('#0099ff')
     .setTitle('Add author?')
     .setDescription('Please review the information.')
-    .addField('\u200b', '\u200b')
+    .addField(blankSpaceField, blankSpaceField)
     .addFields(
       { name: 'Name', value: name },
       { name: 'Author is Dao Member?', value: `${isDaoMember ? 'Yes' : 'No'}` },
       { name: 'Twitter URL', value: `${twitterUrl === '' ? 'Not provided' : twitterUrl }` },
       { name: 'Youtube URL', value: `${youtubeUrl === '' ? 'Not provided' : youtubeUrl }` },
     )
-    .addField('\u200b', '\u200b')
+    .addField(blankSpaceField, blankSpaceField)
     .setTimestamp();
 
   const noButton = new MessageButton()
