@@ -59,10 +59,10 @@ export async function execute(interaction: CommandInteraction) {
   else {
     try {
       createTag(tag);
-      await interaction.editReply('Thank you. The tag has been added.');
+      await interaction.editReply({ content: 'Thank you. The tag has been added.', components: [] });
     }
     catch (e) {
-      await interaction.editReply('Unfortunately something went wrong adding the tag. Please try again later.');
+      await interaction.editReply({ content: 'Unfortunately something went wrong adding the tag. Please try again later.', components: [] });
     }
   }
 }
