@@ -1,4 +1,5 @@
 import Airtable from 'airtable';
+import AirtableError from 'airtable/lib/airtable_error';
 import { User } from 'discord.js';
 import dotenv from 'dotenv'
 import { LookupItem, Resource } from '../types';
@@ -161,4 +162,52 @@ export function readLookup(tableName: string): Promise<LookupItem[]> {
           resolve(items);
       });
   })
+}
+
+export async function findResourceByUrl(url: string): Promise<LookupItem> {
+  const table = BASE('Resources');
+  const records = await table.select({
+    filterByFormula: `LOWER({Source}) = '${url.toLowerCase()}'`,
+    view: 'Grid view',
+  });
+  if (records) {
+    const all = await records.all();
+    const first = all[0];
+    return { name: `${first.get('name')}`, id: first.id };
+  }
+  else {
+    throw new AirtableError('Not found', 'Item not found', 404);
+  }
+}
+
+export function findAuthorByName(name: string): Promise<LookupItem | undefined> {
+  return findLookupItemByName('Authors', name);
+}
+
+export function findTagByName(name: string): Promise<LookupItem | undefined> {
+  return findLookupItemByName('Tags', name);
+}
+
+export function findCategoryByName(name: string): Promise<LookupItem | undefined> {
+  return findLookupItemByName('Category', name);
+}
+
+export function findBlockchainByName(name: string): Promise<LookupItem | undefined> {
+  return findLookupItemByName('Blockchain', name);
+}
+
+export async function findLookupItemByName(tableName: string, name: string): Promise<LookupItem | undefined> {
+  const table = BASE(tableName);
+  const records = await table.select({
+    filterByFormula: `LOWER({Name}) = '${name.toLowerCase()}'`,
+    view: 'Grid view',
+  });
+  if (records) {
+    const all = await records.all();
+    const first = all[0];
+    return { name: `${first.get('Name')}`, id: first.id };
+  }
+  else {
+    return undefined;
+  }
 }

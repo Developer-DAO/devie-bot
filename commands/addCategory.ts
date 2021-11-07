@@ -1,21 +1,21 @@
 import { SlashCommandBuilder } from '@discordjs/builders';
 import { CommandInteraction, MessageActionRow, MessageButton } from 'discord.js';
-import { createCategory } from '../utils';
+import { createCategory, findCategoryByName } from '../utils';
 
 export const data = new SlashCommandBuilder()
-    .setName('add-category')
-    .setDescription('Adds a category to the knowledge base')
-    .addStringOption(
-      option => option.setRequired(true)
+  .setName('add-category')
+  .setDescription('Adds a category to the knowledge base')
+  .addStringOption(
+    option => option.setRequired(true)
       .setName('category')
       .setDescription('Enter a category'))
 
 export async function execute(interaction: CommandInteraction) {
   const category = interaction.options.getString('category')
   const REPLY = {
-     YES: 'yes',
-     NO: 'no',
-   };
+    YES: 'yes',
+    NO: 'no',
+  };
 
   const noButton = new MessageButton()
     .setCustomId(REPLY.NO)
@@ -37,7 +37,7 @@ export async function execute(interaction: CommandInteraction) {
   }
 
   await interaction.reply({
-    content: `Are you sure you want to add ${category}?`,
+    content: `Are you sure you want to add ${category.trim()}?`,
     components: [buttonRow],
     ephemeral: true,
   });
@@ -51,15 +51,21 @@ export async function execute(interaction: CommandInteraction) {
   buttonReply.update({ components: [] });
   if (buttonSelected === REPLY.NO) {
     buttonReply.followUp({
-      content: `"${category}" was not added`,
+      content: `"${category.trim()}" was not added`,
       ephemeral: true,
     })
     return;
   }
   else {
     try {
-      await createCategory(category);
-      await interaction.editReply('Thank you. The category has been added.');
+      const foundCategory = await findCategoryByName(category.trim());
+      if (foundCategory) {
+        await interaction.editReply('This category is already registered.');
+      }
+      else {
+        await createCategory(category.trim());
+        await interaction.editReply('Thank you. The category has been added.');
+      }
     }
     catch (e) {
       await interaction.editReply('Unfortunately something went wrong adding the category. Please try again later.');
