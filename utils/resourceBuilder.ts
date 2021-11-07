@@ -1,18 +1,18 @@
-import { Resource } from '../types';
+import { LookupItem, Resource } from '../types';
 
 export class ResourceBuilderError extends Error {}
 
 export class ResourceBuilder {
   public contributor?: string;
-  public author?: string;
+  public author?: LookupItem;
   public title?: string;
   public summary?: string;
   public source?: string;
   public level?: string;
   public mediaType?: string;
-  public blockchain?: string[];
-  public category?: string[];
-  public tags?: string[];
+  public blockchain?: LookupItem[];
+  public category?: LookupItem[];
+  public tags?: LookupItem[];
 
   public build(): Resource {
     if (this.contributor == null || this.contributor === undefined) {
@@ -42,17 +42,20 @@ export class ResourceBuilder {
     if (this.tags == null || this.tags === undefined || this.tags.length === 0) {
       throw new ResourceBuilderError('Unable to build incomplete Resource')
     }
-    return new Resource(
-      this.contributor,
-      this.author,
-      this.title.trim(),
-      this.summary.trim(),
-      this.source.trim(),
-      this.level.trim(),
-      this.mediaType.trim(),
-      this.blockchain || [],
-      this.category,
-      this.tags,
-    );
+    if (this.blockchain == null || this.blockchain === undefined || this.blockchain.length === 0) {
+      throw new ResourceBuilderError('Unable to build incomplete Resource')
+    }
+    return {
+      contributor: this.contributor,
+      author: this.author.id,
+      title: this.title.trim(),
+      summary: this.summary.trim(),
+      source: this.source.trim(),
+      level: this.level.trim(),
+      mediaType: this.mediaType.trim(),
+      blockchain: this.blockchain.map(bc => bc.id),
+      category: this.category.map(c => c.id),
+      tags: this.tags.map(t => t.id),
+    };
   }
 }

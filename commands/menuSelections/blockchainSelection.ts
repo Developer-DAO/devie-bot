@@ -1,33 +1,10 @@
 import { DMChannel, MessageActionRow, MessageSelectMenu } from 'discord.js';
+import { LookupItem } from '../../types';
+import { readBlockchain } from '../../utils';
 
-// TODO: Load these values from the appropriate table in AirTable
-export const setBlockchainSelection = async (dmChannel: DMChannel) => {
-  const options = [
-      {
-        label: 'Ethereum',
-        value: 'ethereum',
-      },
-      {
-        label: 'Solana',
-        value: 'solana',
-      },
-      {
-        label: 'Bitcoin',
-        value: 'bitcoin',
-      },
-      {
-        label: 'Rinkeby',
-        value: 'rinkeby',
-      },
-      {
-        label: 'Ropsten',
-        value: 'ropsten',
-      },
-      {
-        label: 'Kovan',
-        value: 'kovan',
-      },
-    ];
+export const setBlockchainSelection = async (dmChannel: DMChannel): Promise<LookupItem[]> => {
+  const blockchains = await readBlockchain();
+  const options = blockchains.map(tag => ({ label: tag.name, value: tag.id }));
   const row = new MessageActionRow().addComponents(
     new MessageSelectMenu()
     .setCustomId('blockchains')
@@ -35,8 +12,14 @@ export const setBlockchainSelection = async (dmChannel: DMChannel) => {
     .setMaxValues(Math.min(options.length, 25))
     .addOptions(options),
   );
-  return await dmChannel.send({
+  const blockchainMessage = await dmChannel.send({
     content: 'Select blockchains',
     components: [row],
+  });
+  const blockchainResponse = await dmChannel.awaitMessageComponent<'SELECT_MENU'>();
+  blockchainMessage.delete();
+  return blockchainResponse.values.map(v => {
+    const lookupItem = blockchains.find((value) => value.id === v);
+    return lookupItem ?? { name: 'Unknown', id: v };
   });
 }
