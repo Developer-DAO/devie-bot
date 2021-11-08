@@ -1,7 +1,7 @@
 export const name = 'interactionCreate';
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function execute(interaction: any) {
-    if (!interaction.isCommand()) return;
+    if (!interaction.isCommand() && !interaction.isButton()) return;
 
     const command = interaction.client.commands.get(interaction.commandName);
 
