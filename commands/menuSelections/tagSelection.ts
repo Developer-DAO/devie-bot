@@ -1,45 +1,10 @@
 import { DMChannel, MessageActionRow, MessageSelectMenu } from 'discord.js';
+import { LookupItem } from '../../types';
+import { readTags } from '../../utils';
 
-// TODO: Load these values from the appropriate table in AirTable
-export const setTagSelection = async (dmChannel: DMChannel) => {
-  const options = [
-      {
-        label: 'Solidity',
-        value: 'solidity',
-      },
-      {
-        label: 'React',
-        value: 'React',
-      },
-      {
-        label: 'Rust',
-        value: 'rust',
-      },
-      {
-        label: 'Ethereum',
-        value: 'ethereum',
-      },
-      {
-        label: 'Solana',
-        value: 'solana',
-      },
-      {
-        label: 'Bitcoin',
-        value: 'bitcoin',
-      },
-      {
-        label: 'Rinkeby',
-        value: 'rinkeby',
-      },
-      {
-        label: 'Ropsten',
-        value: 'ropsten',
-      },
-      {
-        label: 'Kovan',
-        value: 'kovan',
-      },
-    ];
+export const setTagSelection = async (dmChannel: DMChannel): Promise<LookupItem[]> => {
+  const tags = await readTags();
+  const options = tags.map(tag => ({ label: tag.name, value: tag.id }));
   const row = new MessageActionRow().addComponents(
     new MessageSelectMenu()
     .setCustomId('tags')
@@ -47,8 +12,14 @@ export const setTagSelection = async (dmChannel: DMChannel) => {
     .setMaxValues(Math.min(options.length, 25))
     .addOptions(options),
   );
-  return await dmChannel.send({
+  const tagMessage = await dmChannel.send({
     content: 'Select tags',
     components: [row],
+  });
+  const tagResponse = await dmChannel.awaitMessageComponent<'SELECT_MENU'>();
+  tagMessage.delete();
+  return tagResponse.values.map(v => {
+    const lookupItem = tags.find((value) => value.id === v);
+    return lookupItem ?? { name: 'Unknown', id: v };
   });
 }

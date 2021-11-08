@@ -1,9 +1,9 @@
 import { SlashCommandBuilder } from '@discordjs/builders';
 import { CommandInteraction, MessageActionRow, MessageButton, MessageEmbed } from 'discord.js';
-import { AuthorInfo } from '../types/author';
+import { Author as AuthorInfo } from '../types';
 import { createAuthor, isAirtableError } from '../utils/airTableCalls';
 import HandledError, { isHandledError } from '../utils/error';
-import isValidUrl from '../utils/urlChecker';
+import { isValidUrl } from '../utils/urlChecker';
 
 export const data = new SlashCommandBuilder()
   .setName('add-author')
@@ -83,8 +83,8 @@ export async function execute(interaction: CommandInteraction) {
     .addFields(
       { name: 'Name', value: name },
       { name: 'Author is Dao Member?', value: `${isDaoMember ? 'Yes' : 'No'}` },
-      { name: 'Twitter URL', value: `${twitterUrl === '' ? 'Not provided' : twitterUrl }` },
-      { name: 'Youtube URL', value: `${youtubeUrl === '' ? 'Not provided' : youtubeUrl }` },
+      { name: 'Twitter URL', value: `${twitterUrl === '' ? 'Not provided' : twitterUrl}` },
+      { name: 'Youtube URL', value: `${youtubeUrl === '' ? 'Not provided' : youtubeUrl}` },
     )
     .addField(blankSpaceField, blankSpaceField)
     .setTimestamp();
