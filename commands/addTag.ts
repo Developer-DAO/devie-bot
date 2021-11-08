@@ -1,21 +1,21 @@
 import { SlashCommandBuilder } from '@discordjs/builders';
 import { CommandInteraction, MessageActionRow, MessageButton } from 'discord.js';
-import { createTag } from '../utils';
+import { createTag, findTagByName } from '../utils';
 
 export const data = new SlashCommandBuilder()
-    .setName('add-tag')
-    .setDescription('Adds a tag to the knowledge base')
-    .addStringOption(
-      option => option.setRequired(true)
+  .setName('add-tag')
+  .setDescription('Adds a tag to the knowledge base')
+  .addStringOption(
+    option => option.setRequired(true)
       .setName('tag')
       .setDescription('Enter a tag'))
 
 export async function execute(interaction: CommandInteraction) {
   const tag = interaction.options.getString('tag')
   const REPLY = {
-     YES: 'yes',
-     NO: 'no',
-   };
+    YES: 'yes',
+    NO: 'no',
+  };
 
   const noButton = new MessageButton()
     .setCustomId(REPLY.NO)
@@ -37,7 +37,7 @@ export async function execute(interaction: CommandInteraction) {
   }
 
   await interaction.reply({
-    content: `Are you sure you want to add ${tag}?`,
+    content: `Are you sure you want to add ${tag.trim()}?`,
     components: [buttonRow],
     ephemeral: true,
   });
@@ -51,18 +51,24 @@ export async function execute(interaction: CommandInteraction) {
   buttonReply.update({ components: [] });
   if (buttonSelected === REPLY.NO) {
     buttonReply.followUp({
-      content: `"${tag}" was not added`,
+      content: `"${tag.trim()}" was not added`,
       ephemeral: true,
     })
     return;
   }
   else {
     try {
-      createTag(tag);
-      await interaction.editReply({ content: 'Thank you. The tag has been added.', components: [] });
+      const foundTag = await findTagByName(tag.trim());
+      if (foundTag) {
+        await interaction.editReply('This tag is already registered.');
+      }
+      else {
+        await createTag(tag.trim());
+        await interaction.editReply('Thank you. The tag has been added.');
+      }
     }
     catch (e) {
-      await interaction.editReply({ content: 'Unfortunately something went wrong adding the tag. Please try again later.', components: [] });
+      await interaction.editReply('Unfortunately something went wrong adding the tag. Please try again later.');
     }
   }
 }

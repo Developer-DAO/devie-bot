@@ -1,6 +1,6 @@
 import { SlashCommandBuilder, inlineCode } from '@discordjs/builders';
 import { CommandInteraction, MessageActionRow, MessageButton, MessageEmbed, MessageSelectMenu } from 'discord.js';
-import { createResource, findContributor, isContributor, isValidUrl, readAuthors, readBlockchain, readCategory, readTags, ResourceBuilder } from '../utils/index';
+import { createResource, findContributor, findResourceByUrl, isContributor, isValidUrl, readAuthors, readBlockchain, readCategory, readTags, ResourceBuilder } from '../utils/index';
 
 export const data = new SlashCommandBuilder()
   .setName('add-resource')
@@ -85,10 +85,22 @@ export async function execute(interaction: CommandInteraction) {
   }
 
   const url = interaction.options.getString('url');
-  if (url && !isValidUrl(url)) {
-    interaction.reply('Invalid URL provided, please check it before submitting again.');
+  if (!url) {
+    interaction.reply({ content: 'URL required, please try submitting again.', ephemeral: true });
     return;
   }
+
+  if (!isValidUrl(url)) {
+    interaction.reply({ content: 'Invalid URL provided, please check it before submitting again.', ephemeral: true });
+    return;
+  }
+
+  const foundResouce = await findResourceByUrl(url);
+  if (foundResouce) {
+    interaction.reply({ content: 'A resource with this URL already exists.', ephemeral: true });
+    return;
+  }
+
   const resource = getSanitizedResourceInfo(interaction);
   resource.contributor = contributor;
 

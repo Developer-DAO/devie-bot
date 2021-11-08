@@ -1,16 +1,16 @@
 import { SlashCommandBuilder } from '@discordjs/builders';
 import { CommandInteraction, MessageActionRow, MessageButton } from 'discord.js';
-import { createBlockchain } from '../utils';
+import { createBlockchain, findBlockchainByName } from '../utils';
 
 export const data = new SlashCommandBuilder()
-    .setName('add-blockchain')
-    .setDescription('Adds a blockchain to the knowledge base')
-    .addStringOption(
-      option => option.setRequired(true)
+  .setName('add-blockchain')
+  .setDescription('Adds a blockchain to the knowledge base')
+  .addStringOption(
+    option => option.setRequired(true)
       .setName('blockchain')
       .setDescription('Enter a blockchain'))
-    .addStringOption(
-      option => option.setRequired(false)
+  .addStringOption(
+    option => option.setRequired(false)
       .setName('website')
       .setDescription('Enter blockchain website'));
 
@@ -18,9 +18,9 @@ export async function execute(interaction: CommandInteraction) {
   const blockchain = interaction.options.getString('blockchain');
   const website = interaction.options.getString('website');
   const REPLY = {
-     YES: 'yes',
-     NO: 'no',
-   };
+    YES: 'yes',
+    NO: 'no',
+  };
 
   const noButton = new MessageButton()
     .setCustomId(REPLY.NO)
@@ -42,7 +42,7 @@ export async function execute(interaction: CommandInteraction) {
   }
 
   await interaction.reply({
-    content: `Are you sure you want to add ${blockchain}?`,
+    content: `Are you sure you want to add ${blockchain.trim()}?`,
     components: [buttonRow],
     ephemeral: true,
   });
@@ -56,15 +56,21 @@ export async function execute(interaction: CommandInteraction) {
   buttonReply.update({ components: [] });
   if (buttonSelected === REPLY.NO) {
     buttonReply.followUp({
-      content: `"${blockchain}" was not added`,
+      content: `"${blockchain.trim()}" was not added`,
       ephemeral: true,
     })
     return;
   }
   else {
     try {
-      await createBlockchain(blockchain, website);
-      await interaction.editReply('Thank you. The blockchain has been added.');
+      const foundChain = await findBlockchainByName(blockchain.trim());
+      if (foundChain) {
+        await interaction.editReply('This blockchain is already registered.');
+      }
+      else {
+        await createBlockchain(blockchain.trim(), website ? website.trim() : website);
+        await interaction.editReply('Thank you. The blockchain has been added.');
+      }
     }
     catch (e) {
       await interaction.editReply('Unfortunately something went wrong adding the blockchain. Please try again later.');

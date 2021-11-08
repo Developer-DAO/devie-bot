@@ -195,3 +195,49 @@ export function readLookup(table: Table<FieldSet>): Promise<LookupItem[]> {
     });
   })
 }
+
+export async function findResourceByUrl(url: string): Promise<LookupItem> {
+  const records = await TABLES.RESOURCES().select({
+    filterByFormula: `LOWER({Source}) = '${url.toLowerCase()}'`,
+    view: 'Grid view',
+  });
+  if (records) {
+    const all = await records.all();
+    const first = all[0];
+    return { name: `${first.get('name')}`, id: first.id };
+  }
+  else {
+    throw new AirtableError('Not found', 'Item not found', 404);
+  }
+}
+
+export function findAuthorByName(name: string): Promise<LookupItem | undefined> {
+  return findLookupItemByName(TABLES.AUTHOR(), name);
+}
+
+export function findTagByName(name: string): Promise<LookupItem | undefined> {
+  return findLookupItemByName(TABLES.TAGS(), name);
+}
+
+export function findCategoryByName(name: string): Promise<LookupItem | undefined> {
+  return findLookupItemByName(TABLES.CATEGORY(), name);
+}
+
+export function findBlockchainByName(name: string): Promise<LookupItem | undefined> {
+  return findLookupItemByName(TABLES.BLOCKCHAIN(), name);
+}
+
+export async function findLookupItemByName(table: Table<FieldSet>, name: string): Promise<LookupItem | undefined> {
+  const records = await table.select({
+    filterByFormula: `LOWER({Name}) = '${name.toLowerCase()}'`,
+    view: 'Grid view',
+  });
+  if (records) {
+    const all = await records.all();
+    const first = all[0];
+    return { name: `${first.get('Name')}`, id: first.id };
+  }
+  else {
+    return undefined;
+  }
+}
