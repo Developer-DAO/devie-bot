@@ -4,6 +4,7 @@ import { readCategory } from '../../utils';
 
 export const setCategorySelection = async (dmChannel: DMChannel): Promise<LookupItem[]> => {
   const categories = await readCategory();
+  categories.unshift({ name: '<SKIP>', id: 'N/A' });
   const options = categories.map(tag => ({ label: tag.name, value: tag.id }));
   const row = new MessageActionRow().addComponents(
     new MessageSelectMenu()
@@ -18,8 +19,9 @@ export const setCategorySelection = async (dmChannel: DMChannel): Promise<Lookup
   });
   const categoryResponse = await dmChannel.awaitMessageComponent<'SELECT_MENU'>();
   categoryMessage.delete();
-  return categoryResponse.values.map(v => {
+  const categoryOptions = categoryResponse.values.map(v => {
     const lookupItem = categories.find((value) => value.id === v);
     return lookupItem ?? { name: 'Unknown', id: v };
   });
+  return categoryOptions;
 }

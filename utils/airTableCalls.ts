@@ -29,16 +29,16 @@ export async function isContributor(user: User) {
   }
 }
 
-export async function createContributor(user: User, nftID: string, twitterHandle: string, ethWalletAddress: string) {
+export async function createContributor(user: User, nftID?: number, twitterHandle?: string, ethWalletAddress?: string) {
   const table = TABLES.CONTRIBUTOR();
   const records = await table.create([
     {
       'fields': {
         // 'Discord Handle': `${user.username}:${user.discriminator}`,
         'DiscordId': `${user.id}`,
-        'DevDAO ID': parseInt(nftID),
-        'Twitter Handle': twitterHandle,
-        'ETH Wallet Address': ethWalletAddress,
+        'DevDAO ID': nftID,
+        'Twitter Handle': twitterHandle ?? '',
+        'ETH Wallet Address': ethWalletAddress ?? '',
       },
     },
   ]);

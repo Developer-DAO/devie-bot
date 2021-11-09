@@ -1,6 +1,6 @@
 import { SlashCommandBuilder } from '@discordjs/builders';
 import { CommandInteraction } from 'discord.js';
-import { isContributor, createContributor } from '../utils';
+import { isContributor, createContributor, getCleanDevID } from '../utils';
 import { createTwitterHandle } from '../utils/twitterHandle';
 
 export const data = new SlashCommandBuilder()
@@ -13,11 +13,7 @@ export const data = new SlashCommandBuilder()
   .addStringOption(
     option => option.setRequired(false)
       .setName('twitter')
-      .setDescription('Enter your twitter handle'))
-  .addStringOption(
-    option => option.setRequired(false)
-      .setName('eth-wallet-address')
-      .setDescription('Enter your ETH wallet address'));
+      .setDescription('Enter your twitter handle (e.g. @developer_dao'));
 
 export async function execute(interaction: CommandInteraction) {
   if (await isContributor(interaction.user)) {
@@ -26,6 +22,12 @@ export async function execute(interaction: CommandInteraction) {
   }
 
   const devDAOID = interaction.options.getString('devdao-id');
+  const devID = getCleanDevID(devDAOID);
+
+  if (devID && isNaN(devID)) {
+    return interaction.reply({ content: 'The DevDAO ID you provided is not valid, please try again.', ephemeral: true });
+  }
+
   let twitterHandle = interaction.options.getString('twitter');
   if (twitterHandle) {
     const twitterResponse = createTwitterHandle(twitterHandle);
@@ -37,8 +39,7 @@ export async function execute(interaction: CommandInteraction) {
       // twitterHandle = twitterResponse.URL;
     }
   }
-  const ethWalletAddress = interaction.options.getString('eth-wallet-address');
-  await createContributor(interaction.user, devDAOID ?? '', twitterHandle ?? '', ethWalletAddress ?? '');
+  await createContributor(interaction.user, devID, twitterHandle ?? undefined);
   interaction.reply({ content: 'You added yourself as a contributer! Congrats', ephemeral: true });
   return;
 }

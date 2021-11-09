@@ -3,6 +3,7 @@ import { CommandInteraction, Message, MessageActionRow, MessageButton, MessageEm
 import { ResourceBuilder, isContributor, isValidUrl, findContributor, findResourceByUrl, createResource } from '../utils';
 import { setAuthorSelection, setCategorySelection, setBlockchainSelection, setTagSelection } from './menuSelections';
 import { addContributor } from './interactions'
+import { LookupItem } from '../types';
 
 export const data = new SlashCommandBuilder()
   .setName('add-resource-extended')
@@ -35,6 +36,20 @@ export const data = new SlashCommandBuilder()
       .addChoice('Paid Course', 'Paid Course')
       .addChoice('Free Course', 'Free Course'));
 
+function buildSelectionResponse(title: string, selections?: LookupItem[]): string {
+  if (selections && selections.length > 0) {
+    if (selections.filter(bc => bc.id.toLowerCase() === 'n/a').length > 0) {
+      return 'SKIPPED';
+    }
+    else {
+      return selections.map(b => b.name).join(', ');
+    }
+  }
+  else {
+    return title;
+  }
+}
+
 function ConfigureEmbed(embed: MessageEmbed, resource: ResourceBuilder): MessageEmbed {
   embed.setAuthor(resource.author?.name ?? 'Author');
   embed.setTitle(resource.title ?? 'Title');
@@ -43,10 +58,10 @@ function ConfigureEmbed(embed: MessageEmbed, resource: ResourceBuilder): Message
   embed.setFields([
     { name: 'level', value: resource.level ?? 'Level', inline: true },
     { name: 'mediatype', value: resource.mediaType ?? 'Media Type', inline: true },
-    { name: 'blockchain', value: resource.blockchain ? resource.blockchain.map(b => b.name).join(', ') : 'Blockchain', inline: false },
-    { name: 'category', value: resource.category ? resource.category.map(c => c.name).join(', ') : 'Category', inline: true },
+    { name: 'blockchain', value: buildSelectionResponse('Blockchain', resource.blockchain), inline: false },
+    { name: 'category', value: buildSelectionResponse('Category', resource.category), inline: true },
   ]);
-  embed.setFooter(`Tags: ${resource.tags ? resource.tags.map(t => t.name).join(', ') : ''}`)
+  embed.setFooter(`Tags: ${buildSelectionResponse('', resource.tags)}`)
 
   return embed;
 }

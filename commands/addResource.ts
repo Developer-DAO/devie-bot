@@ -1,6 +1,7 @@
 import { SlashCommandBuilder, inlineCode } from '@discordjs/builders';
 import { CommandInteraction, MessageActionRow, MessageButton, MessageEmbed, MessageSelectMenu } from 'discord.js';
-import { createResource, findContributor, findResourceByUrl, isAirtableError, isContributor, isValidUrl, readAuthors, readBlockchain, readCategory, readTags, ResourceBuilder } from '../utils/index';
+import { LookupItem } from '../types';
+import { createResource, findContributor, findResourceByUrl, isContributor, isValidUrl, readAuthors, readBlockchain, readCategory, readTags, ResourceBuilder } from '../utils/index';
 
 export const data = new SlashCommandBuilder()
   .setName('add-resource')
@@ -50,6 +51,20 @@ function getSanitizedResourceInfo(interaction: CommandInteraction): ResourceBuil
   return builder;
 }
 
+function buildSelectionResponse(title: string, selections?: LookupItem[]): string {
+  if (selections && selections.length > 0) {
+    if (selections.filter(bc => bc.id.toLowerCase() === 'n/a').length > 0) {
+      return 'SKIPPED';
+    }
+    else {
+      return selections.map(b => b.name).join(', ');
+    }
+  }
+  else {
+    return title;
+  }
+}
+
 function buildEmbed(resource: ResourceBuilder) {
   const resourceEmbed = new MessageEmbed().setColor('#0099ff');
   resourceEmbed.setAuthor(resource.author ? resource.author.name : 'Author');
@@ -57,9 +72,9 @@ function buildEmbed(resource: ResourceBuilder) {
   resourceEmbed.setURL(resource.source ?? 'Source');
   resourceEmbed.setDescription(resource.summary ?? 'Summary');
 
-  const blockChains = resource.blockchain && resource.blockchain.length > 0 ? resource.blockchain.map(b => b.name).join(', ') : 'Blockchain';
-  const categories = resource.category && resource.category.length > 0 ? resource.category.map(c => c.name).join(', ') : 'Category';
-  const tags = resource.tags && resource.tags.length > 0 ? resource.tags.map(t => t.name).join(', ') : 'Tags';
+  const blockChains = buildSelectionResponse('Blockchain', resource.blockchain);
+  const categories = buildSelectionResponse('Categories', resource.category);
+  const tags = buildSelectionResponse('Tags', resource.tags);
 
   resourceEmbed.setFields([
     { name: 'level', value: resource.level ?? 'Level', inline: true },
@@ -101,13 +116,14 @@ export async function execute(interaction: CommandInteraction) {
     return;
   }
 
-  await interaction.deferReply();
+  await interaction.deferReply({ ephemeral: true });
 
   const resource = getSanitizedResourceInfo(interaction);
   resource.contributor = contributor;
 
   const resourceEmbed = buildEmbed(resource);
   const tags = await readTags();
+  tags.unshift({ name: '<SKIP>', id: 'N/A' });
   const tagsOptions = tags.map(tag => ({ label: tag.name, value: tag.id }));
   const tagsRow = new MessageActionRow().addComponents(
     new MessageSelectMenu()
@@ -118,16 +134,18 @@ export async function execute(interaction: CommandInteraction) {
   );
 
   const blockchain = await readBlockchain();
-  const bcOptions = blockchain.map(bc => ({ label: bc.name, value: bc.id }));
+  blockchain.unshift({ name: '<SKIP>', id: 'N/A' });
+  const blockchainOptions = blockchain.map(bc => ({ label: bc.name, value: bc.id }));
   const bcRow = new MessageActionRow().addComponents(
     new MessageSelectMenu()
       .setCustomId('blockchain')
       .setPlaceholder('Select blockchain')
-      .setMaxValues(Math.min(bcOptions.length, 25))
-      .addOptions(bcOptions),
+      .setMaxValues(Math.min(blockchainOptions.length, 25))
+      .addOptions(blockchainOptions),
   );
 
   const categories = await readCategory();
+  categories.unshift({ name: '<SKIP>', id: 'N/A' });
   const categoryOptions = categories.map(category => ({ label: category.name, value: category.id }));
   const categoryRow = new MessageActionRow().addComponents(
     new MessageSelectMenu()
@@ -155,8 +173,8 @@ export async function execute(interaction: CommandInteraction) {
   });
 
   const collector = interaction.channel?.createMessageComponentCollector({
-    maxComponents: 4,
-    time: 60_000,
+    maxComponents: 5,
+    time: 120_000,
     componentType: 'SELECT_MENU',
   });
 
@@ -184,10 +202,14 @@ export async function execute(interaction: CommandInteraction) {
         break;
       }
       case 'author': {
-        resource.author = menuInteraction.values.map(v => {
-          const lookupItem = authors.find((value) => value.id === v);
-          return lookupItem ?? { name: 'Unknown', id: v };
-        })[0];
+        if (menuInteraction.values.length === 1) {
+          const selectedItemId = menuInteraction.values[0];
+          const lookupItem = authors.find((value) => value.id === selectedItemId);
+          resource.author = lookupItem ?? { name: 'Unknown', id: selectedItemId };
+        }
+        else {
+          // No idea how you would get here really or what to do
+        }
         break;
       }
     }
@@ -210,6 +232,10 @@ export async function execute(interaction: CommandInteraction) {
     const updatedEmbed = buildEmbed(resource);
     menuInteraction.update({ components: menuRows })
     interaction.editReply({ embeds: [updatedEmbed] });
+
+    if (menuRows.length === 0) {
+      collector?.stop();
+    }
   });
 
   collector?.on('end', async () => {

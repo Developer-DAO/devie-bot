@@ -4,6 +4,7 @@ import { readBlockchain } from '../../utils';
 
 export const setBlockchainSelection = async (dmChannel: DMChannel): Promise<LookupItem[]> => {
   const blockchains = await readBlockchain();
+  blockchains.unshift({ name: '<SKIP>', id: 'N/A' });
   const options = blockchains.map(tag => ({ label: tag.name, value: tag.id }));
   const row = new MessageActionRow().addComponents(
     new MessageSelectMenu()
@@ -18,8 +19,10 @@ export const setBlockchainSelection = async (dmChannel: DMChannel): Promise<Look
   });
   const blockchainResponse = await dmChannel.awaitMessageComponent<'SELECT_MENU'>();
   blockchainMessage.delete();
-  return blockchainResponse.values.map(v => {
+  const blockchainOptions = blockchainResponse.values.map(v => {
     const lookupItem = blockchains.find((value) => value.id === v);
     return lookupItem ?? { name: 'Unknown', id: v };
   });
+
+  return blockchainOptions;
 }
