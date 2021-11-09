@@ -1,6 +1,6 @@
 import { SlashCommandBuilder, inlineCode } from '@discordjs/builders';
 import { CommandInteraction, MessageActionRow, MessageButton, MessageEmbed, MessageSelectMenu } from 'discord.js';
-import { createResource, findContributor, findResourceByUrl, isContributor, isValidUrl, readAuthors, readBlockchain, readCategory, readTags, ResourceBuilder } from '../utils/index';
+import { createResource, findContributor, findResourceByUrl, isAirtableError, isContributor, isValidUrl, readAuthors, readBlockchain, readCategory, readTags, ResourceBuilder } from '../utils/index';
 
 export const data = new SlashCommandBuilder()
   .setName('add-resource')
@@ -101,6 +101,8 @@ export async function execute(interaction: CommandInteraction) {
     return;
   }
 
+  await interaction.deferReply();
+
   const resource = getSanitizedResourceInfo(interaction);
   resource.contributor = contributor;
 
@@ -146,11 +148,10 @@ export async function execute(interaction: CommandInteraction) {
 
   const selectionRows = [authorRow, bcRow, categoryRow, tagsRow];
 
-  await interaction.reply({
+  await interaction.editReply({
     embeds: [resourceEmbed],
     content: 'Tell me about the resource',
     components: selectionRows,
-    ephemeral: true,
   });
 
   const collector = interaction.channel?.createMessageComponentCollector({

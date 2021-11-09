@@ -147,7 +147,6 @@ export async function findContributor(user: User) {
     view: 'Grid view',
   }).all();
   if (records) {
-    console.log(records);
     return records[0];
   }
 }
@@ -196,18 +195,17 @@ export function readLookup(table: Table<FieldSet>): Promise<LookupItem[]> {
   })
 }
 
-export async function findResourceByUrl(url: string): Promise<LookupItem> {
+export async function findResourceByUrl(url: string): Promise<LookupItem | undefined> {
   const records = await TABLES.RESOURCES().select({
     filterByFormula: `LOWER({Source}) = '${url.toLowerCase()}'`,
     view: 'Grid view',
-  });
-  if (records) {
-    const all = await records.all();
-    const first = all[0];
+  }).all();
+  if (records && records.length > 0) {
+    const first = records[0];
     return { name: `${first.get('name')}`, id: first.id };
   }
   else {
-    throw new AirtableError('Not found', 'Item not found', 404);
+    return undefined;
   }
 }
 
@@ -231,10 +229,9 @@ export async function findLookupItemByName(table: Table<FieldSet>, name: string)
   const records = await table.select({
     filterByFormula: `LOWER({Name}) = '${name.toLowerCase()}'`,
     view: 'Grid view',
-  });
-  if (records) {
-    const all = await records.all();
-    const first = all[0];
+  }).all();
+  if (records && records.length > 0) {
+    const first = records[0];
     return { name: `${first.get('Name')}`, id: first.id };
   }
   else {
