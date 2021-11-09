@@ -1,34 +1,68 @@
 # discord-resource-bot
 
-This bot will allow users to use /commands in discord to add resources to our knowledge base on airtable.
+## TL;DR
 
-Currently to run this you will need to create a discord bot following [this](https://discordjs.guide/#before-you-begin) tutorial.
+This bot will allow members of the DAO to use `/slash` commands in Discord to interact with our Airtable knowledgebase.
 
-You will need to setup your .env vars as follows:
+## Setup
 
+1. Fork the [`discord-resource-bot` repository](https://github.com/Developer-DAO/discord-resource-bot) into your GitHub account
+
+2. Clone the fork to your local system
+
+```bash
+git clone git@github.com:YOUR_USER_NAME/discord-resource-bot.git
 ```
-DISCORD_TOKEN=
-GUILD_ID=
-CLIENT_ID=
+
+3. Install Node modules
+
+```bash
+npm install
 ```
 
-Once you have created your bot and added the environment variables above, you can create all its commands by running:
+4. Create a `.env` file at the root of the project
 
+```bash
+touch .env
 ```
+
+5. Follow [this tutorial](https://discordjs.guide/preparations/setting-up-a-bot-application.html) to create a Discord bot. Then, update your `.env` with the `DISCORD_TOKEN` and `CLIENT_ID` values created during the tutorial.
+
+```bash
+# .env
+
+DISCORD_TOKEN=abc
+CLIENT_ID=123
+```
+
+6. We also need to add our `GUILD_ID` to the `.env` file. This can be found in your Discord server settings under Widget > Server ID.
+
+```bash
+# .env
+
+GUILD_ID=xyz
+```
+
+7. Deploy your commands to the bot created above
+
+```bash
 npm run deploy:commands
 ```
 
-After that you can start the bot server by running:
+8. Start the bot server
 
+```bash
+npm run dev
 ```
-npm run server
-```
 
-At this point you can look at the available commands by typing `/` in your chat bot.
+Now, you can test out the slash commands you've created in the Discord server where you installed the bot.
 
-Currently there's a `ping` command, and a `add-resource` command.
+## Commands
 
-Please ping `@NoahH` in the discord should you have any questions!
+These are the current commands the bot supports:
+
+- `/ping` - Send a test request to the bot
+- `/add-resource` - Add a new entry to the knowledgebase
 
 ## Linting
 
@@ -37,3 +71,7 @@ To check if your code will compile and is linted appropriately, you can run:
 ```
 npm run lint
 ```
+
+## Support
+
+Please ping `@NoahH` in the discord should you have any questions!
