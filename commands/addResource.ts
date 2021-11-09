@@ -136,7 +136,7 @@ export async function execute(interaction: CommandInteraction) {
   const blockchain = await readBlockchain();
   blockchain.unshift({ name: '<SKIP>', id: 'N/A' });
   const blockchainOptions = blockchain.map(bc => ({ label: bc.name, value: bc.id }));
-  const bcRow = new MessageActionRow().addComponents(
+  const blockchainRow = new MessageActionRow().addComponents(
     new MessageSelectMenu()
       .setCustomId('blockchain')
       .setPlaceholder('Select blockchain')
@@ -164,7 +164,7 @@ export async function execute(interaction: CommandInteraction) {
       .addOptions(authorOptions),
   );
 
-  const selectionRows = [authorRow, bcRow, categoryRow, tagsRow];
+  const selectionRows = [authorRow, blockchainRow, categoryRow, tagsRow];
 
   await interaction.editReply({
     embeds: [resourceEmbed],
@@ -220,7 +220,7 @@ export async function execute(interaction: CommandInteraction) {
       menuRows.push(authorRow);
     }
     if (resource.blockchain === undefined || resource.blockchain.length === 0) {
-      menuRows.push(bcRow);
+      menuRows.push(blockchainRow);
     }
     if (resource.category === undefined || resource.category.length === 0) {
       menuRows.push(categoryRow);
