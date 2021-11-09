@@ -41,3 +41,15 @@ export type Contributor = {
   categories?: LookupItem[];
   tags?: LookupItem[];
 }
+
+export type UTwitterHandleResponse = IValidTwitterHandleResponse | IInvalidTwitterHandleResponse;
+
+export interface IValidTwitterHandleResponse {
+  isValid: true;
+  handle: string;
+  URL: string;
+}
+
+export interface IInvalidTwitterHandleResponse {
+  isValid: false;
+}

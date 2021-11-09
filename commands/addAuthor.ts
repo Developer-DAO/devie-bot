@@ -3,6 +3,7 @@ import { CommandInteraction, MessageActionRow, MessageButton, MessageEmbed } fro
 import { Author as AuthorInfo } from '../types';
 import { createAuthor, isAirtableError } from '../utils/airTableCalls';
 import HandledError, { isHandledError } from '../utils/error';
+import { createTwitterHandle } from '../utils/twitterHandle';
 import { isValidUrl } from '../utils/urlChecker';
 
 export const data = new SlashCommandBuilder()
@@ -56,10 +57,19 @@ export async function execute(interaction: CommandInteraction) {
   };
 
   const author = getSanitizedAuthorInfo(interaction);
-  const { name, isDaoMember, twitterUrl, youtubeUrl } = author;
+  const { name, isDaoMember, youtubeUrl } = author;
+  let { twitterUrl } = author;
+
   const invalidUrlType = [];
-  if (twitterUrl !== '' && !isValidUrl(twitterUrl)) {
-    invalidUrlType.push(`Twitter URL (${twitterUrl})`);
+
+  if (twitterUrl !== '') {
+    const twitterResponse = createTwitterHandle(twitterUrl);
+    if (twitterResponse.isValid) {
+      twitterUrl = twitterResponse.URL;
+    }
+    else {
+      invalidUrlType.push(`Twitter URL (${twitterUrl})`);
+    }
   }
 
   if (youtubeUrl !== '' && !isValidUrl(youtubeUrl)) {

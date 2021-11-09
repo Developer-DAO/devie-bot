@@ -1,6 +1,7 @@
 import { SlashCommandBuilder } from '@discordjs/builders';
 import { CommandInteraction } from 'discord.js';
 import { isContributor, createContributor } from '../utils';
+import { createTwitterHandle } from '../utils/twitterHandle';
 
 export const data = new SlashCommandBuilder()
   .setName('add-contributor')
@@ -25,7 +26,17 @@ export async function execute(interaction: CommandInteraction) {
   }
 
   const devDAOID = interaction.options.getString('devdao-id');
-  const twitterHandle = interaction.options.getString('twitter');
+  let twitterHandle = interaction.options.getString('twitter');
+  if (twitterHandle) {
+    const twitterResponse = createTwitterHandle(twitterHandle);
+    if (!twitterResponse.isValid) {
+      return interaction.reply({ content: 'The twitter handle you provided is not valid, please try again.', ephemeral: true });
+    }
+    else {
+      twitterHandle = twitterResponse.handle;
+      // twitterHandle = twitterResponse.URL;
+    }
+  }
   const ethWalletAddress = interaction.options.getString('eth-wallet-address');
   await createContributor(interaction.user, devDAOID ?? '', twitterHandle ?? '', ethWalletAddress ?? '');
   interaction.reply({ content: 'You added yourself as a contributer! Congrats', ephemeral: true });
