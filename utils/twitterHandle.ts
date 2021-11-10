@@ -19,7 +19,7 @@ function buildTwitterURL(handle: string): string {
  * @return  {string}          The result of cleaning the input
  */
 function sanitiseTwitterHandle(handle: string): string {
-  let clean = handle.toLowerCase().trim();
+  let clean = handle.trim();
   // Remove any trailing '/'s
   if (clean.endsWith('/')) {
     clean = clean.slice(0, -1);
@@ -43,18 +43,18 @@ function sanitiseTwitterHandle(handle: string): string {
  * Attempts to create a twitter handle and twitter URL from the provided input
  *
  * @example
- * createTwitterHandle('AidenMontgomery');
- * // return { isValid: true, handle: 'aidenmontgomery', URL: 'https://www.twitter.com/aidenmontgomery }
+ * createTwitterHandle('Developer_DAO');
+ * // return { isValid: true, handle: 'Developer_DAO', URL: 'https://www.twitter.com/Developer_DAO }
  * @example
- * createTwitterHandle('@AidenMontgomery');
- * // return { isValid: true, handle: 'aidenmontgomery', URL: 'https://www.twitter.com/aidenmontgomery }
+ * createTwitterHandle('@Developer_DAO');
+ * // return { isValid: true, handle: 'Developer_DAO', URL: 'https://www.twitter.com/Developer_DAO }
  * @example
- * createTwitterHandle('http://www.twitter.com/AidenMontgomery');
- * // return { isValid: true, handle: 'aidenmontgomery', URL: 'https://www.twitter.com/aidenmontgomery }
+ * createTwitterHandle('http://www.twitter.com/Developer_DAO');
+ * // return { isValid: true, handle: 'Developer_DAO', URL: 'https://www.twitter.com/Developer_DAO }
  * @example
  * createTwitterHandle('this is really long and isnt a valid handle');
  * // return { isValid: false }
- * @param   {string}                       input  This should be either a full twitter URL e.g. https://www.twitter.com/AidenMontgomery or a valid twitter handle e.g. AidenMontgomery or @AidenMontgomery
+ * @param   {string}                       input  This should be either a full twitter URL e.g. https://www.twitter.com/Developer_DAO or a valid twitter handle e.g. Developer_DAO or @Developer_DAO
  * @return  {UTwitterHandleResponse}         When valid inputs are entered returns isValid = true along with the handle and the URL for the twitter account.
  */
 export function createTwitterHandle(input: string): UTwitterHandleResponse {
