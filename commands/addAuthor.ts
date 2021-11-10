@@ -66,6 +66,7 @@ export async function execute(interaction: CommandInteraction) {
     const twitterResponse = createTwitterHandle(twitterUrl);
     if (twitterResponse.isValid) {
       twitterUrl = twitterResponse.URL;
+      author.twitterUrl = twitterUrl;
     }
     else {
       invalidUrlType.push(`Twitter URL (${twitterUrl})`);

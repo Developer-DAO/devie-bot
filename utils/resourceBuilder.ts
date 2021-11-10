@@ -36,13 +36,13 @@ export class ResourceBuilder {
     if (this.mediaType == null || this.mediaType === undefined || this.mediaType.trim().length === 0) {
       throw new ResourceBuilderError('Unable to build incomplete Resource')
     }
-    if (this.category == null || this.category === undefined || this.category.length === 0) {
+    if (this.category == null || this.category === undefined) {
       throw new ResourceBuilderError('Unable to build incomplete Resource')
     }
-    if (this.tags == null || this.tags === undefined || this.tags.length === 0) {
+    if (this.tags == null || this.tags === undefined) {
       throw new ResourceBuilderError('Unable to build incomplete Resource')
     }
-    if (this.blockchain == null || this.blockchain === undefined || this.blockchain.length === 0) {
+    if (this.blockchain == null || this.blockchain === undefined) {
       throw new ResourceBuilderError('Unable to build incomplete Resource')
     }
     return {
@@ -53,9 +53,9 @@ export class ResourceBuilder {
       source: this.source.trim(),
       level: this.level.trim(),
       mediaType: this.mediaType.trim(),
-      blockchain: this.blockchain.map(bc => bc.id),
-      category: this.category.map(c => c.id),
-      tags: this.tags.map(t => t.id),
+      blockchain: this.blockchain.filter(bc => bc.id.toLowerCase() !== 'n/a').map(bc => bc.id),
+      category: this.category.filter(c => c.id.toLowerCase() !== 'n/a').map(c => c.id),
+      tags: this.tags.filter(t => t.id.toLowerCase() !== 'n/a').map(t => t.id),
     };
   }
 }
