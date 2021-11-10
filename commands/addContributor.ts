@@ -36,8 +36,7 @@ export async function execute(interaction: CommandInteraction) {
       return interaction.reply({ content: 'The twitter handle you provided is not valid, please try again.', ephemeral: true });
     }
     else {
-      twitterHandle = twitterResponse.handle;
-      // twitterHandle = twitterResponse.URL;
+      twitterHandle = twitterResponse.URL;
     }
   }
   try {

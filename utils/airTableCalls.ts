@@ -34,8 +34,8 @@ export async function createContributor(user: User, nftID?: number, twitterHandl
   const records = await table.create([
     {
       'fields': {
-        // 'Discord Handle': `${user.username}:${user.discriminator}`,
-        'DiscordId': `${user.id}`,
+        'Discord Handle': `${user.username}:${user.discriminator}`,
+        'Discord ID': `${user.id}`,
         'DevDAO ID': nftID,
         'Twitter Handle': twitterHandle ?? '',
         'ETH Wallet Address': ethWalletAddress ?? '',
