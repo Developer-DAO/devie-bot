@@ -1,6 +1,7 @@
 import { SlashCommandBuilder } from '@discordjs/builders';
 import { CommandInteraction, MessageActionRow, MessageButton } from 'discord.js';
-import { createTag, findTagByName } from '../utils';
+import { createTag, findTagByName, isAirtableError } from '../utils';
+import { isHandledError } from '../utils/error';
 
 export const data = new SlashCommandBuilder()
   .setName('add-tag')
@@ -67,8 +68,16 @@ export async function execute(interaction: CommandInteraction) {
         await interaction.editReply('Thank you. The tag has been added.');
       }
     }
-    catch (e) {
-      await interaction.editReply('Unfortunately something went wrong adding the tag. Please try again later.');
+    catch (error) {
+      let errorMessage = 'There was an error saving. Please try again.';
+      if (isAirtableError(error)) {
+        errorMessage = 'There was an error from Airtable. Please try again.';
+      }
+      if (isHandledError(error)) {
+        errorMessage = error.message;
+      }
+
+      await interaction.followUp({ content: errorMessage, ephemeral: true });
     }
   }
 }

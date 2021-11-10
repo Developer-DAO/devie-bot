@@ -1,7 +1,8 @@
 import { SlashCommandBuilder, inlineCode } from '@discordjs/builders';
 import { CommandInteraction, MessageActionRow, MessageButton, MessageEmbed, MessageSelectMenu } from 'discord.js';
 import { LookupItem } from '../types';
-import { createResource, findContributor, findResourceByUrl, isContributor, isValidUrl, readAuthors, readBlockchain, readCategory, readTags, ResourceBuilder } from '../utils/index';
+import { isHandledError } from '../utils/error';
+import { createResource, findContributor, findResourceByUrl, isAirtableError, isContributor, isValidUrl, readAuthors, readBlockchain, readCategory, readTags, ResourceBuilder } from '../utils/index';
 
 export const data = new SlashCommandBuilder()
   .setName('add-resource')
@@ -276,20 +277,33 @@ export async function execute(interaction: CommandInteraction) {
       return;
     }
     else {
-      const result = await createResource(resource.build());
-      if (result.success) {
-        interaction.editReply({
-          content: 'Resource was added. Thank you for your contribution',
-          embeds: [],
-          components: [],
-        });
+      try {
+        const result = await createResource(resource.build());
+        if (result.success) {
+          interaction.editReply({
+            content: 'Resource was added. Thank you for your contribution',
+            embeds: [],
+            components: [],
+          });
+        }
+        else {
+          interaction.editReply({
+            content: 'Resource addition failed. ${error}',
+            embeds: [],
+            components: [],
+          });
+        }
       }
-      else {
-        interaction.editReply({
-          content: 'Resource addition failed. ${error}',
-          embeds: [],
-          components: [],
-        });
+      catch (error) {
+        let errorMessage = 'There was an error saving. Please try again.';
+        if (isAirtableError(error)) {
+          errorMessage = 'There was an error from Airtable. Please try again.';
+        }
+        if (isHandledError(error)) {
+          errorMessage = error.message;
+        }
+
+        await interaction.followUp({ content: errorMessage, ephemeral: true });
       }
     }
   })

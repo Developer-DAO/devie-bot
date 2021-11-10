@@ -1,6 +1,7 @@
 import { SlashCommandBuilder } from '@discordjs/builders';
 import { CommandInteraction } from 'discord.js';
-import { isContributor, createContributor, getCleanDevID } from '../utils';
+import { isContributor, createContributor, getCleanDevID, isAirtableError } from '../utils';
+import { isHandledError } from '../utils/error';
 import { createTwitterHandle } from '../utils/twitterHandle';
 
 export const data = new SlashCommandBuilder()
@@ -39,7 +40,20 @@ export async function execute(interaction: CommandInteraction) {
       // twitterHandle = twitterResponse.URL;
     }
   }
-  await createContributor(interaction.user, devID, twitterHandle ?? undefined);
-  interaction.reply({ content: 'You added yourself as a contributer! Congrats', ephemeral: true });
+  try {
+    await createContributor(interaction.user, devID, twitterHandle ?? undefined);
+    interaction.reply({ content: 'You added yourself as a contributer! Congrats', ephemeral: true });
+  }
+  catch (error) {
+    let errorMessage = 'There was an error saving. Please try again.';
+    if (isAirtableError(error)) {
+      errorMessage = 'There was an error from Airtable. Please try again.';
+    }
+    if (isHandledError(error)) {
+      errorMessage = error.message;
+    }
+
+    await interaction.followUp({ content: errorMessage, ephemeral: true });
+  }
   return;
 }

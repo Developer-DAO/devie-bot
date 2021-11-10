@@ -1,6 +1,7 @@
 import { SlashCommandBuilder } from '@discordjs/builders';
 import { CommandInteraction, MessageActionRow, MessageButton } from 'discord.js';
-import { createBlockchain, findBlockchainByName } from '../utils';
+import { createBlockchain, findBlockchainByName, isAirtableError } from '../utils';
+import { isHandledError } from '../utils/error';
 
 export const data = new SlashCommandBuilder()
   .setName('add-blockchain')
@@ -72,8 +73,16 @@ export async function execute(interaction: CommandInteraction) {
         await interaction.editReply('Thank you. The blockchain has been added.');
       }
     }
-    catch (e) {
-      await interaction.editReply('Unfortunately something went wrong adding the blockchain. Please try again later.');
+    catch (error) {
+      let errorMessage = 'There was an error saving. Please try again.';
+      if (isAirtableError(error)) {
+        errorMessage = 'There was an error from Airtable. Please try again.';
+      }
+      if (isHandledError(error)) {
+        errorMessage = error.message;
+      }
+
+      await interaction.followUp({ content: errorMessage, ephemeral: true });
     }
   }
 }

@@ -1,6 +1,7 @@
 import { SlashCommandBuilder } from '@discordjs/builders';
 import { CommandInteraction, MessageActionRow, MessageButton } from 'discord.js';
-import { createCategory, findCategoryByName } from '../utils';
+import { createCategory, findCategoryByName, isAirtableError } from '../utils';
+import { isHandledError } from '../utils/error';
 
 export const data = new SlashCommandBuilder()
   .setName('add-category')
@@ -68,7 +69,15 @@ export async function execute(interaction: CommandInteraction) {
       }
     }
     catch (e) {
-      await interaction.editReply('Unfortunately something went wrong adding the category. Please try again later.');
+      let errorMessage = 'There was an error saving. Please try again.';
+      if (isAirtableError(e)) {
+        errorMessage = 'There was an error from Airtable. Please try again.';
+      }
+      if (isHandledError(e)) {
+        errorMessage = e.message;
+      }
+
+      await interaction.followUp({ content: errorMessage, ephemeral: true });
     }
   }
 }
