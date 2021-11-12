@@ -142,7 +142,7 @@ export async function findContributor(user: User) {
   const discordID = `${user.id}`;
   const records = await TABLES.CONTRIBUTOR().select({
     // filterByFormula: `{Discord Handle} = '${discordHandle}'`,
-    filterByFormula: `{DiscordId} = '${discordID}'`,
+    filterByFormula: `{Discord Id} = '${discordID}'`,
     maxRecords: 1,
     view: 'Grid view',
   }).all();
