@@ -1,6 +1,8 @@
 import { DMChannel, MessageActionRow, MessageSelectMenu } from 'discord.js';
 
 // TODO: Load these values from the appropriate table in AirTable
+// We need to have access to the Metadata API to access the possible values for the field
+// https://airtable.com/api/meta
 export const setMediaTypeSelection = async (dmChannel: DMChannel) => {
   const row = new MessageActionRow().addComponents(
     new MessageSelectMenu()
@@ -12,16 +14,16 @@ export const setMediaTypeSelection = async (dmChannel: DMChannel) => {
           value: 'video',
         },
         {
-          label: 'Text',
-          value: 'text',
+          label: 'Article',
+          value: 'Article',
         },
         {
           label: 'Free Course',
-          value: 'free_course',
+          value: 'Free Course',
         },
         {
           label: 'Paid Course',
-          value: 'paid_course',
+          value: 'Paid Course',
         },
       ]),
   );

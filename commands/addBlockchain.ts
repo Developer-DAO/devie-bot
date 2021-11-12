@@ -1,47 +1,88 @@
 import { SlashCommandBuilder } from '@discordjs/builders';
-import { CommandInteraction, Message } from 'discord.js';
+import { CommandInteraction, MessageActionRow, MessageButton } from 'discord.js';
+import { createBlockchain, findBlockchainByName, isAirtableError } from '../utils';
+import { isHandledError } from '../utils/error';
 
 export const data = new SlashCommandBuilder()
-    .setName('add-blockchain')
-    .setDescription('Adds a blockchain to the knowledgebase')
-    .addStringOption(
-      option => option.setRequired(true)
+  .setName('add-blockchain')
+  .setDescription('Adds a blockchain to the knowledge base')
+  .addStringOption(
+    option => option.setRequired(true)
       .setName('blockchain')
       .setDescription('Enter a blockchain'))
+  .addStringOption(
+    option => option.setRequired(false)
+      .setName('website')
+      .setDescription('Enter blockchain website'));
 
 export async function execute(interaction: CommandInteraction) {
-  const userInput = interaction.options.getString('blockchain')
-  const validAnswers = ['y', 'n']
-  const filter = (response: Message) => {
-    return validAnswers.some(answer => answer.toLowerCase() === response.content.toLowerCase()) && response.author.id === interaction.user.id
+  const blockchain = interaction.options.getString('blockchain');
+  const website = interaction.options.getString('website');
+  const REPLY = {
+    YES: 'yes',
+    NO: 'no',
+  };
+
+  const noButton = new MessageButton()
+    .setCustomId(REPLY.NO)
+    .setLabel('Cancel')
+    .setStyle('DANGER');
+  const yesButton = new MessageButton()
+    .setCustomId(REPLY.YES)
+    .setLabel('Add blockchain')
+    .setStyle('PRIMARY');
+  const buttonRow = new MessageActionRow()
+    .addComponents(
+      noButton,
+      yesButton,
+    );
+
+  if (blockchain === undefined || blockchain == null) {
+    interaction.reply('Blockchain missing, please try again.');
+    return;
   }
 
   await interaction.reply({
-      content: `you are submiting ${userInput} as a new resource. \n Is this blockchain correct? [Y/N]`,
-      ephemeral: true,
-  })
+    content: `Are you sure you want to add ${blockchain.trim()}?`,
+    components: [buttonRow],
+    ephemeral: true,
+  });
 
-  const collector = await interaction.channel?.awaitMessages({ filter, max: 1, time: 15000, errors: ['time'] })
-  console.log('Recieved interaction')
-  collector?.map((message: Message) => {
-    console.log(message);
-    switch (message.content.toLowerCase()) {
-      case 'y':
-        interaction.followUp({
-          content: 'Confirmed!',
-          ephemeral: true,
-        });
-        console.log(`Saving ${userInput} to the blockchain table`);
-        // TODO: Add this to Airtable
-        break;
-      case 'n':
-          interaction.followUp({
-              content: 'Try again with the correct resource please!',
-              ephemeral: true,
-          })
-          break;
-      default:
-          break;
+  const buttonReply = await interaction.channel?.awaitMessageComponent({ componentType: 'BUTTON' });
+  if (!buttonReply) {
+    return;
+  }
+
+  const buttonSelected = buttonReply.customId;
+  buttonReply.update({ components: [] });
+  if (buttonSelected === REPLY.NO) {
+    buttonReply.followUp({
+      content: `"${blockchain.trim()}" was not added`,
+      ephemeral: true,
+    })
+    return;
+  }
+  else {
+    try {
+      const foundChain = await findBlockchainByName(blockchain.trim());
+      if (foundChain) {
+        await interaction.editReply('This blockchain is already registered.');
+      }
+      else {
+        await createBlockchain(blockchain.trim(), website ? website.trim() : website);
+        await interaction.editReply('Thank you. The blockchain has been added.');
+      }
     }
-  })
+    catch (error) {
+      let errorMessage = 'There was an error saving. Please try again.';
+      if (isAirtableError(error)) {
+        errorMessage = 'There was an error from Airtable. Please try again.';
+      }
+      if (isHandledError(error)) {
+        errorMessage = error.message;
+      }
+
+      await interaction.followUp({ content: errorMessage, ephemeral: true });
+    }
+  }
 }

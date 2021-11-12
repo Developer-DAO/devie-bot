@@ -9,15 +9,15 @@ export const setLevelSelection = async (dmChannel: DMChannel) => {
       .addOptions([
         {
           label: 'Beginner',
-          value: 'beginner',
+          value: 'Beginner',
         },
         {
           label: 'Intermediate',
-          value: 'intermediate',
+          value: 'Intermediate',
         },
         {
           label: 'Advanced',
-          value: 'advanced',
+          value: 'Advanced',
         },
       ]),
   );

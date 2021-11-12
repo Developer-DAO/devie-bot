@@ -1,17 +1,11 @@
 import { DMChannel, MessageActionRow, MessageSelectMenu } from 'discord.js';
+import { LookupItem } from '../../types';
+import { readCategory } from '../../utils';
 
-// TODO: Load these values from the appropriate table in AirTable
-export const setCategorySelection = async (dmChannel: DMChannel) => {
-  const options = [
-      {
-        label: 'Dapps',
-        value: 'dapps',
-      },
-      {
-        label: 'Smart Contracts',
-        value: 'smart_contracts',
-      },
-    ]
+export const setCategorySelection = async (dmChannel: DMChannel): Promise<LookupItem[]> => {
+  const categories = await readCategory();
+  categories.unshift({ name: '<SKIP>', id: 'N/A' });
+  const options = categories.map(tag => ({ label: tag.name, value: tag.id }));
   const row = new MessageActionRow().addComponents(
     new MessageSelectMenu()
     .setCustomId('category')
@@ -19,8 +13,15 @@ export const setCategorySelection = async (dmChannel: DMChannel) => {
     .setMaxValues(Math.min(options.length, 25))
     .addOptions(options),
   );
-  return await dmChannel.send({
+  const categoryMessage = await dmChannel.send({
     content: 'Select categories',
     components: [row],
   });
+  const categoryResponse = await dmChannel.awaitMessageComponent<'SELECT_MENU'>();
+  categoryMessage.delete();
+  const categoryOptions = categoryResponse.values.map(v => {
+    const lookupItem = categories.find((value) => value.id === v);
+    return lookupItem ?? { name: 'Unknown', id: v };
+  });
+  return categoryOptions;
 }
