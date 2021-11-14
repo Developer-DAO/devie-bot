@@ -20,4 +20,4 @@ Select the `Resources` tab an configure the dynos to run the `worker` command. E
 ![dyno configuration](./assets/configureDynos.png)
 
 Configure automatic deployments.
-![manual deployment](./assets/manualDeployment.png)
+![manual deployment](./assets/automaticDeployment.png)
