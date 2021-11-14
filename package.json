@@ -1,9 +1,15 @@
 {
+  "engines": {
+    "node": "16.6.0"
+  },
   "scripts": {
     "fmt": "eslint . --fix",
     "lint": "tsc --noEmit && eslint .",
-    "deploy:commands": "ts-node deploy-commands.ts",
-    "dev": "ts-node index.ts"
+    "deploy:commands": "ts-node --noEmit deploy-commands.ts",
+    "deploy:client": "heroku deploy",
+    "dev": "ts-node --noEmit index.ts",
+    "build": "tsc",
+    "postinstall": "tsc"
   },
   "dependencies": {
     "@discordjs/builders": "^0.8.1",
