@@ -5,9 +5,9 @@
   "scripts": {
     "fmt": "eslint . --fix",
     "lint": "tsc --noEmit && eslint .",
-    "deploy:commands": "ts-node --noEmit deploy-commands.ts",
+    "deploy:commands": "ts-node deploy-commands.ts",
     "deploy:client": "heroku deploy",
-    "dev": "ts-node --noEmit index.ts",
+    "dev": "ts-node index.ts",
     "build": "tsc",
     "postinstall": "tsc"
   },
