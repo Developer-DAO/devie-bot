@@ -2,8 +2,6 @@ import { Intents, Collection } from 'discord.js';
 import { discordClient } from './utils/classes';
 import dotenv from 'dotenv';
 
-import { readTags } from './utils/airTableCalls';
-
 dotenv.config()
 
 const botToken = process.env.DISCORD_TOKEN
@@ -13,7 +11,4 @@ console.log('Loading bot');
 client.commands = new Collection();
 client.loadCommandsToClient();
 client.loadEventsToClient();
-client.login(botToken)
-
-
-readTags();
+client.login(botToken);

@@ -1,22 +1,28 @@
 import { SlashCommandBuilder } from '@discordjs/builders';
 import { CommandInteraction, Message, MessageActionRow, MessageButton } from 'discord.js';
-import { createBlockchain, findBlockchainByName, isAirtableError } from '../utils';
+import { createGlossaryTerm, findGlossaryTermByName, isAirtableError } from '../utils';
+import { isValidUrl } from '../utils/urlChecker';
 import { isHandledError } from '../utils/error';
 
 export const data = new SlashCommandBuilder()
-  .setName('add-blockchain')
-  .setDescription('Adds a blockchain to the knowledge base')
+  .setName('add-glossary')
+  .setDescription('Adds a glossary term to the knowledge base')
   .addStringOption(
     option => option.setRequired(true)
-      .setName('blockchain')
-      .setDescription('Enter a blockchain'))
+      .setName('term')
+      .setDescription('Enter a term'))
   .addStringOption(
-    option => option.setRequired(false)
+    option => option.setRequired(true)
+      .setName('description')
+      .setDescription('Enter a description for the term'))
+  .addStringOption(
+    option => option.setRequired(true)
       .setName('website')
-      .setDescription('Enter blockchain website'));
+      .setDescription('Enter a link to a resource where people can find out more info on this term.'));
 
 export async function execute(interaction: CommandInteraction) {
-  const blockchain = interaction.options.getString('blockchain');
+  const term = interaction.options.getString('term');
+  const description = interaction.options.getString('description');
   const website = interaction.options.getString('website');
   const REPLY = {
     YES: 'yes',
@@ -29,7 +35,7 @@ export async function execute(interaction: CommandInteraction) {
     .setStyle('DANGER');
   const yesButton = new MessageButton()
     .setCustomId(REPLY.YES)
-    .setLabel('Add blockchain')
+    .setLabel('Add term')
     .setStyle('PRIMARY');
   const buttonRow = new MessageActionRow()
     .addComponents(
@@ -37,13 +43,23 @@ export async function execute(interaction: CommandInteraction) {
       yesButton,
     );
 
-  if (blockchain === undefined || blockchain == null) {
-    interaction.reply('Blockchain missing, please try again.');
+  if (term === undefined || term == null) {
+    interaction.reply({ content: 'Term missing, please try again.', ephemeral: true });
+    return;
+  }
+
+  if (description === undefined || description == null) {
+    interaction.reply({ content: 'Description missing, please try again.', ephemeral: true });
+    return;
+  }
+
+  if (website === undefined || website == null || !isValidUrl(website.trim())) {
+    interaction.reply({ content: 'Website missing or invalid link, please try again.', ephemeral: true });
     return;
   }
 
   await interaction.reply({
-    content: `Are you sure you want to add \`${blockchain.trim()}\`?`,
+    content: `Are you sure you want to add \`${term.trim()}\`?`,
     components: [buttonRow],
     ephemeral: true,
   });
@@ -51,7 +67,7 @@ export async function execute(interaction: CommandInteraction) {
   const interactionMessage = await interaction.fetchReply();
 
   if (interactionMessage instanceof Message) {
-    const buttonReply = await interactionMessage.awaitMessageComponent({ componentType: 'BUTTON' });
+    const buttonReply = await interaction.channel?.awaitMessageComponent({ componentType: 'BUTTON' });
     if (!buttonReply) {
       return;
     }
@@ -60,20 +76,20 @@ export async function execute(interaction: CommandInteraction) {
     buttonReply.update({ components: [] });
     if (buttonSelected === REPLY.NO) {
       buttonReply.followUp({
-        content: `"${blockchain.trim()}" was not added`,
+        content: `"${term.trim()}" was not added`,
         ephemeral: true,
       })
       return;
     }
     else {
       try {
-        const foundChain = await findBlockchainByName(blockchain.trim());
+        const foundChain = await findGlossaryTermByName(term.trim());
         if (foundChain) {
-          await interaction.editReply('This blockchain is already registered.');
+          await interaction.editReply('This term is already registered.');
         }
         else {
-          await createBlockchain(blockchain.trim(), website ? website.trim() : website);
-          await interaction.editReply('Thank you. The blockchain has been added.');
+          await createGlossaryTerm(term.trim(), description.trim(), website.trim());
+          await interaction.editReply('Thank you. The term has been added.');
         }
       }
       catch (error) {
@@ -89,7 +105,7 @@ export async function execute(interaction: CommandInteraction) {
           await interaction.followUp({ content: errorMessage, ephemeral: true });
         }
         catch (e) {
-          console.log('Error trying to follow up add-blockchain', e);
+          console.log('Error trying to follow up add-glossary', e);
         }
       }
     }

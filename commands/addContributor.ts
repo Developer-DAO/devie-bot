@@ -56,7 +56,7 @@ export async function execute(interaction: CommandInteraction) {
       await interaction.followUp({ content: errorMessage, ephemeral: true });
     }
     catch (e) {
-      console.log(e);
+      console.log('Error trying to follow up add-contributor', e);
     }
   }
   return;

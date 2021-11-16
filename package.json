@@ -6,7 +6,6 @@
     "fmt": "eslint . --fix",
     "lint": "tsc --noEmit && eslint .",
     "deploy:commands": "ts-node deploy-commands.ts",
-    "deploy:client": "heroku deploy",
     "dev": "ts-node index.ts",
     "build": "tsc",
     "postinstall": "tsc"

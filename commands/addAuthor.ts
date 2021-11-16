@@ -1,5 +1,5 @@
 import { SlashCommandBuilder } from '@discordjs/builders';
-import { CommandInteraction, MessageActionRow, MessageButton, MessageEmbed } from 'discord.js';
+import { CommandInteraction, Message, MessageActionRow, MessageButton, MessageEmbed } from 'discord.js';
 import { Author as AuthorInfo } from '../types';
 import { createAuthor, isAirtableError } from '../utils/airTableCalls';
 import HandledError, { isHandledError } from '../utils/error';
@@ -120,34 +120,43 @@ export async function execute(interaction: CommandInteraction) {
     ephemeral: true,
   });
 
-  const buttonReply = await interaction.channel?.awaitMessageComponent({ componentType: 'BUTTON' });
-  if (!buttonReply) {
-    return;
-  }
+  const interactionMessage = await interaction.fetchReply();
 
-  const buttonSelected = buttonReply.customId;
-  buttonReply.update({ embeds: [authorEmbed], components: [] });
-  if (buttonSelected === REPLY.NO) {
-    buttonReply.followUp({
-      content: `"${name}" was not added`,
-      ephemeral: true,
-    })
-    return;
-  }
-
-  try {
-    await createAuthor(author);
-    await interaction.followUp({ content: `"${name}" was added as an author`, ephemeral: true });
-  }
-  catch (e) {
-    let errorMessage = 'There was an error saving. Please try again.';
-    if (isAirtableError(e)) {
-      errorMessage = 'There was an error from Airtable. Please try again.';
-    }
-    if (isHandledError(e)) {
-      errorMessage = e.message;
+  if (interactionMessage instanceof Message) {
+    const buttonReply = await interactionMessage.awaitMessageComponent({ componentType: 'BUTTON' });
+    if (!buttonReply) {
+      return;
     }
 
-    await interaction.followUp({ content: errorMessage, ephemeral: true });
+    const buttonSelected = buttonReply.customId;
+    buttonReply.update({ embeds: [authorEmbed], components: [] });
+    if (buttonSelected === REPLY.NO) {
+      buttonReply.followUp({
+        content: `"${name}" was not added`,
+        ephemeral: true,
+      })
+      return;
+    }
+
+    try {
+      await createAuthor(author);
+      await interaction.followUp({ content: `"${name}" was added as an author`, ephemeral: true });
+    }
+    catch (e) {
+      let errorMessage = 'There was an error saving. Please try again.';
+      if (isAirtableError(e)) {
+        errorMessage = 'There was an error from Airtable. Please try again.';
+      }
+      if (isHandledError(e)) {
+        errorMessage = e.message;
+      }
+
+      try {
+        await interaction.followUp({ content: errorMessage, ephemeral: true });
+      }
+      catch (error) {
+        console.log('Error trying to follow up add-author', error);
+      }
+    }
   }
 }

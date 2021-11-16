@@ -1,5 +1,5 @@
 import { SlashCommandBuilder } from '@discordjs/builders';
-import { CommandInteraction, MessageActionRow, MessageButton } from 'discord.js';
+import { CommandInteraction, Message, MessageActionRow, MessageButton } from 'discord.js';
 import { createTag, findTagByName, isAirtableError } from '../utils';
 import { isHandledError } from '../utils/error';
 
@@ -24,7 +24,7 @@ export async function execute(interaction: CommandInteraction) {
     .setStyle('DANGER');
   const yesButton = new MessageButton()
     .setCustomId(REPLY.YES)
-    .setLabel('Add tag')
+    .setLabel('Yes, add tag')
     .setStyle('PRIMARY');
   const buttonRow = new MessageActionRow()
     .addComponents(
@@ -38,46 +38,55 @@ export async function execute(interaction: CommandInteraction) {
   }
 
   await interaction.reply({
-    content: `Are you sure you want to add ${tag.trim()}?`,
+    content: `Are you sure you want to add \`${tag.trim()}\`?`,
     components: [buttonRow],
     ephemeral: true,
   });
 
-  const buttonReply = await interaction.channel?.awaitMessageComponent({ componentType: 'BUTTON' });
-  if (!buttonReply) {
-    return;
-  }
+  const interactionMessage = await interaction.fetchReply();
 
-  const buttonSelected = buttonReply.customId;
-  buttonReply.update({ components: [] });
-  if (buttonSelected === REPLY.NO) {
-    buttonReply.followUp({
-      content: `"${tag.trim()}" was not added`,
-      ephemeral: true,
-    })
-    return;
-  }
-  else {
-    try {
-      const foundTag = await findTagByName(tag.trim());
-      if (foundTag) {
-        await interaction.editReply('This tag is already registered.');
-      }
-      else {
-        await createTag(tag.trim());
-        await interaction.editReply('Thank you. The tag has been added.');
-      }
+  if (interactionMessage instanceof Message) {
+    const buttonReply = await interactionMessage.awaitMessageComponent({ componentType: 'BUTTON' });
+    if (!buttonReply) {
+      return;
     }
-    catch (error) {
-      let errorMessage = 'There was an error saving. Please try again.';
-      if (isAirtableError(error)) {
-        errorMessage = 'There was an error from Airtable. Please try again.';
-      }
-      if (isHandledError(error)) {
-        errorMessage = error.message;
-      }
 
-      await interaction.followUp({ content: errorMessage, ephemeral: true });
+    const buttonSelected = buttonReply.customId;
+    buttonReply.update({ components: [] });
+    if (buttonSelected === REPLY.NO) {
+      buttonReply.followUp({
+        content: `"${tag.trim()}" was not added`,
+        ephemeral: true,
+      })
+      return;
+    }
+    else {
+      try {
+        const foundTag = await findTagByName(tag.trim());
+        if (foundTag) {
+          await interaction.editReply('This tag is already registered.');
+        }
+        else {
+          await createTag(tag.trim());
+          await interaction.editReply('Thank you. The tag has been added.');
+        }
+      }
+      catch (error) {
+        let errorMessage = 'There was an error saving. Please try again.';
+        if (isAirtableError(error)) {
+          errorMessage = 'There was an error from Airtable. Please try again.';
+        }
+        if (isHandledError(error)) {
+          errorMessage = error.message;
+        }
+
+        try {
+          await interaction.followUp({ content: errorMessage, ephemeral: true });
+        }
+        catch (e) {
+          console.log('Error trying to follow up add-tag', e);
+        }
+      }
     }
   }
 }

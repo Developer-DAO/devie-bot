@@ -1,5 +1,5 @@
 import { SlashCommandBuilder } from '@discordjs/builders';
-import { CommandInteraction, MessageActionRow, MessageButton } from 'discord.js';
+import { CommandInteraction, Message, MessageActionRow, MessageButton } from 'discord.js';
 import { createCategory, findCategoryByName, isAirtableError } from '../utils';
 import { isHandledError } from '../utils/error';
 
@@ -38,46 +38,55 @@ export async function execute(interaction: CommandInteraction) {
   }
 
   await interaction.reply({
-    content: `Are you sure you want to add ${category.trim()}?`,
+    content: `Are you sure you want to add \`${category.trim()}\`?`,
     components: [buttonRow],
     ephemeral: true,
   });
 
-  const buttonReply = await interaction.channel?.awaitMessageComponent({ componentType: 'BUTTON' });
-  if (!buttonReply) {
-    return;
-  }
+  const interactionMessage = await interaction.fetchReply();
 
-  const buttonSelected = buttonReply.customId;
-  buttonReply.update({ components: [] });
-  if (buttonSelected === REPLY.NO) {
-    buttonReply.followUp({
-      content: `"${category.trim()}" was not added`,
-      ephemeral: true,
-    })
-    return;
-  }
-  else {
-    try {
-      const foundCategory = await findCategoryByName(category.trim());
-      if (foundCategory) {
-        await interaction.editReply('This category is already registered.');
-      }
-      else {
-        await createCategory(category.trim());
-        await interaction.editReply('Thank you. The category has been added.');
-      }
+  if (interactionMessage instanceof Message) {
+    const buttonReply = await interaction.channel?.awaitMessageComponent({ componentType: 'BUTTON' });
+    if (!buttonReply) {
+      return;
     }
-    catch (e) {
-      let errorMessage = 'There was an error saving. Please try again.';
-      if (isAirtableError(e)) {
-        errorMessage = 'There was an error from Airtable. Please try again.';
-      }
-      if (isHandledError(e)) {
-        errorMessage = e.message;
-      }
 
-      await interaction.followUp({ content: errorMessage, ephemeral: true });
+    const buttonSelected = buttonReply.customId;
+    buttonReply.update({ components: [] });
+    if (buttonSelected === REPLY.NO) {
+      buttonReply.followUp({
+        content: `"${category.trim()}" was not added`,
+        ephemeral: true,
+      })
+      return;
+    }
+    else {
+      try {
+        const foundCategory = await findCategoryByName(category.trim());
+        if (foundCategory) {
+          await interaction.editReply('This category is already registered.');
+        }
+        else {
+          await createCategory(category.trim());
+          await interaction.editReply('Thank you. The category has been added.');
+        }
+      }
+      catch (e) {
+        let errorMessage = 'There was an error saving. Please try again.';
+        if (isAirtableError(e)) {
+          errorMessage = 'There was an error from Airtable. Please try again.';
+        }
+        if (isHandledError(e)) {
+          errorMessage = e.message;
+        }
+
+        try {
+          await interaction.followUp({ content: errorMessage, ephemeral: true });
+        }
+        catch (error) {
+          console.log('Error trying to follow up add-category', error);
+        }
+      }
     }
   }
 }
