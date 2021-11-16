@@ -6,7 +6,7 @@ import { createTwitterHandle } from '../utils/twitterHandle';
 
 export const data = new SlashCommandBuilder()
   .setName('add-contributor')
-  .setDescription('add yourself to the contributor list')
+  .setDescription('Add yourself to the contributor list')
   .addStringOption(
     option => option.setRequired(false)
       .setName('devdao-id')
@@ -52,7 +52,12 @@ export async function execute(interaction: CommandInteraction) {
       errorMessage = error.message;
     }
 
-    await interaction.followUp({ content: errorMessage, ephemeral: true });
+    try {
+      await interaction.followUp({ content: errorMessage, ephemeral: true });
+    }
+    catch (e) {
+      console.log(e);
+    }
   }
   return;
 }
