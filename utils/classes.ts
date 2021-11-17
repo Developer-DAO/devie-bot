@@ -6,7 +6,6 @@ export class discordClient extends Client {
     [key: string]: any
 
     async loadCommandsToClient() {
-        console.log('Loading commands', `${__dirname}/../commands`);
         // Loading both ts and js to make sure it works after building
         const commandFiles = fs.readdirSync(`${__dirname}/../commands`).filter(file => file.endsWith('.ts') || file.endsWith('.js'));
         for (const file of commandFiles) {
@@ -16,7 +15,6 @@ export class discordClient extends Client {
     }
 
     async loadEventsToClient() {
-        console.log('Loading events', `${__dirname}/../events`);
         // Loading both ts and js to make sure it works after building
         const eventFiles = fs.readdirSync(`${__dirname}/../events`).filter(file => file.endsWith('.ts') || file.endsWith('.js'));
         for (const file of eventFiles) {
