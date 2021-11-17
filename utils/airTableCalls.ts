@@ -10,8 +10,6 @@ dotenv.config()
 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 const base = new Airtable({ apiKey: process.env.AIRTABLE_TOKEN! }).base(process.env.AIRTABLE_BASE!)
 
-console.log('Connecting AirTable to base', process.env.AIRTABLE_BASE);
-
 const TABLES = {
   AUTHOR: () => base('Author'),
   CONTRIBUTOR: () => base('Contributor'),

@@ -173,145 +173,145 @@ export async function execute(interaction: CommandInteraction) {
     components: selectionRows,
   });
 
-  if (interactionMessage instanceof Message) {
-    const collector = interactionMessage.createMessageComponentCollector({
-      maxComponents: 5,
-      time: 120_000,
-      componentType: 'SELECT_MENU',
+  if (!(interactionMessage instanceof Message)) { return; }
+
+  const collector = interactionMessage.createMessageComponentCollector({
+    maxComponents: 5,
+    time: 120_000,
+    componentType: 'SELECT_MENU',
+  });
+
+  collector?.on('collect', async (menuInteraction) => {
+    switch (menuInteraction.customId) {
+      case 'category': {
+        resource.category = menuInteraction.values.map((v: string) => {
+          const lookupItem = categories.find((value) => value.id === v);
+          return lookupItem ?? { name: 'Unknown', id: v };
+        });
+        break;
+      }
+      case 'tags': {
+        resource.tags = menuInteraction.values.map((v: string) => {
+          const lookupItem = tags.find((value) => value.id === v);
+          return lookupItem ?? { name: 'Unknown', id: v };
+        });
+        break;
+      }
+      case 'blockchain': {
+        resource.blockchain = menuInteraction.values.map((v: string) => {
+          const lookupItem = blockchain.find((value) => value.id === v);
+          return lookupItem ?? { name: 'Unknown', id: v };
+        });
+        break;
+      }
+      case 'author': {
+        if (menuInteraction.values.length === 1) {
+          const selectedItemId = menuInteraction.values[0];
+          const lookupItem = authors.find((value) => value.id === selectedItemId);
+          resource.author = lookupItem ?? { name: 'Unknown', id: selectedItemId };
+        }
+        else {
+          // No idea how you would get here really or what to do
+        }
+        break;
+      }
+    }
+
+    const menuRows = [];
+
+    if (resource.author === undefined) {
+      menuRows.push(authorRow);
+    }
+    if (resource.blockchain === undefined || resource.blockchain.length === 0) {
+      menuRows.push(blockchainRow);
+    }
+    if (resource.category === undefined || resource.category.length === 0) {
+      menuRows.push(categoryRow);
+    }
+    if (resource.tags === undefined || resource.tags.length === 0) {
+      menuRows.push(tagsRow);
+    }
+
+    const updatedEmbed = buildEmbed(resource);
+    menuInteraction.update({ components: menuRows })
+    interaction.editReply({ embeds: [updatedEmbed] });
+
+    if (menuRows.length === 0) {
+      collector?.stop();
+    }
+  });
+
+  collector?.on('end', async () => {
+    const REPLY = {
+      YES: 'yes',
+      NO: 'no',
+    };
+    const noButton = new MessageButton()
+      .setCustomId(REPLY.NO)
+      .setLabel('Cancel')
+      .setStyle('DANGER');
+    const yesButton = new MessageButton()
+      .setCustomId(REPLY.YES)
+      .setLabel('Add resource')
+      .setStyle('PRIMARY');
+    const buttonRow = new MessageActionRow()
+      .addComponents(
+        noButton,
+        yesButton,
+      );
+
+    await interaction.editReply({
+      components: [buttonRow],
     });
 
-    collector?.on('collect', async (menuInteraction) => {
-      switch (menuInteraction.customId) {
-        case 'category': {
-          resource.category = menuInteraction.values.map((v: string) => {
-            const lookupItem = categories.find((value) => value.id === v);
-            return lookupItem ?? { name: 'Unknown', id: v };
+    const buttonReply = await interaction.channel?.awaitMessageComponent({ componentType: 'BUTTON' });
+    if (!buttonReply) {
+      return;
+    }
+
+    const buttonSelected = buttonReply.customId;
+    buttonReply.update({ embeds: [resourceEmbed], components: [] });
+    if (buttonSelected === REPLY.NO) {
+      buttonReply.followUp({
+        content: `"${resource.title}" was not added`,
+        ephemeral: true,
+      })
+      return;
+    }
+    else {
+      try {
+        const result = await createResource(resource.build());
+        if (result.success) {
+          interaction.editReply({
+            content: 'Resource was added. Thank you for your contribution',
+            embeds: [],
+            components: [],
           });
-          break;
         }
-        case 'tags': {
-          resource.tags = menuInteraction.values.map((v: string) => {
-            const lookupItem = tags.find((value) => value.id === v);
-            return lookupItem ?? { name: 'Unknown', id: v };
+        else {
+          interaction.editReply({
+            content: 'Resource addition failed. ${error}',
+            embeds: [],
+            components: [],
           });
-          break;
-        }
-        case 'blockchain': {
-          resource.blockchain = menuInteraction.values.map((v: string) => {
-            const lookupItem = blockchain.find((value) => value.id === v);
-            return lookupItem ?? { name: 'Unknown', id: v };
-          });
-          break;
-        }
-        case 'author': {
-          if (menuInteraction.values.length === 1) {
-            const selectedItemId = menuInteraction.values[0];
-            const lookupItem = authors.find((value) => value.id === selectedItemId);
-            resource.author = lookupItem ?? { name: 'Unknown', id: selectedItemId };
-          }
-          else {
-            // No idea how you would get here really or what to do
-          }
-          break;
         }
       }
+      catch (error) {
+        let errorMessage = 'There was an error saving. Please try again.';
+        if (isAirtableError(error)) {
+          errorMessage = 'There was an error from Airtable. Please try again.';
+        }
+        if (isHandledError(error)) {
+          errorMessage = error.message;
+        }
 
-      const menuRows = [];
-
-      if (resource.author === undefined) {
-        menuRows.push(authorRow);
-      }
-      if (resource.blockchain === undefined || resource.blockchain.length === 0) {
-        menuRows.push(blockchainRow);
-      }
-      if (resource.category === undefined || resource.category.length === 0) {
-        menuRows.push(categoryRow);
-      }
-      if (resource.tags === undefined || resource.tags.length === 0) {
-        menuRows.push(tagsRow);
-      }
-
-      const updatedEmbed = buildEmbed(resource);
-      menuInteraction.update({ components: menuRows })
-      interaction.editReply({ embeds: [updatedEmbed] });
-
-      if (menuRows.length === 0) {
-        collector?.stop();
-      }
-    });
-
-    collector?.on('end', async () => {
-      const REPLY = {
-        YES: 'yes',
-        NO: 'no',
-      };
-      const noButton = new MessageButton()
-        .setCustomId(REPLY.NO)
-        .setLabel('Cancel')
-        .setStyle('DANGER');
-      const yesButton = new MessageButton()
-        .setCustomId(REPLY.YES)
-        .setLabel('Add resource')
-        .setStyle('PRIMARY');
-      const buttonRow = new MessageActionRow()
-        .addComponents(
-          noButton,
-          yesButton,
-        );
-
-      await interaction.editReply({
-        components: [buttonRow],
-      });
-
-      const buttonReply = await interaction.channel?.awaitMessageComponent({ componentType: 'BUTTON' });
-      if (!buttonReply) {
-        return;
-      }
-
-      const buttonSelected = buttonReply.customId;
-      buttonReply.update({ embeds: [resourceEmbed], components: [] });
-      if (buttonSelected === REPLY.NO) {
-        buttonReply.followUp({
-          content: `"${resource.title}" was not added`,
-          ephemeral: true,
-        })
-        return;
-      }
-      else {
         try {
-          const result = await createResource(resource.build());
-          if (result.success) {
-            interaction.editReply({
-              content: 'Resource was added. Thank you for your contribution',
-              embeds: [],
-              components: [],
-            });
-          }
-          else {
-            interaction.editReply({
-              content: 'Resource addition failed. ${error}',
-              embeds: [],
-              components: [],
-            });
-          }
+          await interaction.followUp({ content: errorMessage, ephemeral: true });
         }
-        catch (error) {
-          let errorMessage = 'There was an error saving. Please try again.';
-          if (isAirtableError(error)) {
-            errorMessage = 'There was an error from Airtable. Please try again.';
-          }
-          if (isHandledError(error)) {
-            errorMessage = error.message;
-          }
-
-          try {
-            await interaction.followUp({ content: errorMessage, ephemeral: true });
-          }
-          catch (e) {
-            console.log('Error trying to follow up add-resource', e);
-          }
+        catch (e) {
+          console.log('Error trying to follow up add-resource', e);
         }
       }
-    })
-  }
+    }
+  })
 }

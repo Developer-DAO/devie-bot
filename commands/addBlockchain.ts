@@ -50,47 +50,47 @@ export async function execute(interaction: CommandInteraction) {
 
   const interactionMessage = await interaction.fetchReply();
 
-  if (interactionMessage instanceof Message) {
-    const buttonReply = await interactionMessage.awaitMessageComponent({ componentType: 'BUTTON' });
-    if (!buttonReply) {
-      return;
-    }
+  if (!(interactionMessage instanceof Message)) { return; }
 
-    const buttonSelected = buttonReply.customId;
-    buttonReply.update({ components: [] });
-    if (buttonSelected === REPLY.NO) {
-      buttonReply.followUp({
-        content: `"${blockchain.trim()}" was not added`,
-        ephemeral: true,
-      })
-      return;
-    }
-    else {
-      try {
-        const foundChain = await findBlockchainByName(blockchain.trim());
-        if (foundChain) {
-          await interaction.editReply('This blockchain is already registered.');
-        }
-        else {
-          await createBlockchain(blockchain.trim(), website ? website.trim() : website);
-          await interaction.editReply('Thank you. The blockchain has been added.');
-        }
+  const buttonReply = await interactionMessage.awaitMessageComponent({ componentType: 'BUTTON' });
+  if (!buttonReply) {
+    return;
+  }
+
+  const buttonSelected = buttonReply.customId;
+  buttonReply.update({ components: [] });
+  if (buttonSelected === REPLY.NO) {
+    buttonReply.followUp({
+      content: `"${blockchain.trim()}" was not added`,
+      ephemeral: true,
+    })
+    return;
+  }
+  else {
+    try {
+      const foundChain = await findBlockchainByName(blockchain.trim());
+      if (foundChain) {
+        await interaction.editReply('This blockchain is already registered.');
       }
-      catch (error) {
-        let errorMessage = 'There was an error saving. Please try again.';
-        if (isAirtableError(error)) {
-          errorMessage = 'There was an error from Airtable. Please try again.';
-        }
-        if (isHandledError(error)) {
-          errorMessage = error.message;
-        }
+      else {
+        await createBlockchain(blockchain.trim(), website ? website.trim() : website);
+        await interaction.editReply('Thank you. The blockchain has been added.');
+      }
+    }
+    catch (error) {
+      let errorMessage = 'There was an error saving. Please try again.';
+      if (isAirtableError(error)) {
+        errorMessage = 'There was an error from Airtable. Please try again.';
+      }
+      if (isHandledError(error)) {
+        errorMessage = error.message;
+      }
 
-        try {
-          await interaction.followUp({ content: errorMessage, ephemeral: true });
-        }
-        catch (e) {
-          console.log('Error trying to follow up add-blockchain', e);
-        }
+      try {
+        await interaction.followUp({ content: errorMessage, ephemeral: true });
+      }
+      catch (e) {
+        console.log('Error trying to follow up add-blockchain', e);
       }
     }
   }

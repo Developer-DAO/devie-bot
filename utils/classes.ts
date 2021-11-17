@@ -10,7 +10,6 @@ export class discordClient extends Client {
         // Loading both ts and js to make sure it works after building
         const commandFiles = fs.readdirSync(`${__dirname}/../commands`).filter(file => file.endsWith('.ts') || file.endsWith('.js'));
         for (const file of commandFiles) {
-            console.log('Loading command file', `${__dirname}/../commands/${file}`);
             const command = await import(`${__dirname}/../commands/${file}`);
             this.commands.set(command.data.name, command)
         }
@@ -21,7 +20,6 @@ export class discordClient extends Client {
         // Loading both ts and js to make sure it works after building
         const eventFiles = fs.readdirSync(`${__dirname}/../events`).filter(file => file.endsWith('.ts') || file.endsWith('.js'));
         for (const file of eventFiles) {
-            console.log('Loading event file', `${__dirname}/../events/${file}`);
             const event = await import(`${__dirname}/../events/${file}`);
             if (event.once) {
                 this.once(event.name, (...args) => event.execute(...args))

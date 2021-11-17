@@ -122,41 +122,41 @@ export async function execute(interaction: CommandInteraction) {
 
   const interactionMessage = await interaction.fetchReply();
 
-  if (interactionMessage instanceof Message) {
-    const buttonReply = await interactionMessage.awaitMessageComponent({ componentType: 'BUTTON' });
-    if (!buttonReply) {
-      return;
-    }
+  if (!(interactionMessage instanceof Message)) { return; }
 
-    const buttonSelected = buttonReply.customId;
-    buttonReply.update({ embeds: [authorEmbed], components: [] });
-    if (buttonSelected === REPLY.NO) {
-      buttonReply.followUp({
-        content: `"${name}" was not added`,
-        ephemeral: true,
-      })
-      return;
+  const buttonReply = await interactionMessage.awaitMessageComponent({ componentType: 'BUTTON' });
+  if (!buttonReply) {
+    return;
+  }
+
+  const buttonSelected = buttonReply.customId;
+  buttonReply.update({ embeds: [authorEmbed], components: [] });
+  if (buttonSelected === REPLY.NO) {
+    buttonReply.followUp({
+      content: `"${name}" was not added`,
+      ephemeral: true,
+    })
+    return;
+  }
+
+  try {
+    await createAuthor(author);
+    await interaction.followUp({ content: `"${name}" was added as an author`, ephemeral: true });
+  }
+  catch (e) {
+    let errorMessage = 'There was an error saving. Please try again.';
+    if (isAirtableError(e)) {
+      errorMessage = 'There was an error from Airtable. Please try again.';
+    }
+    if (isHandledError(e)) {
+      errorMessage = e.message;
     }
 
     try {
-      await createAuthor(author);
-      await interaction.followUp({ content: `"${name}" was added as an author`, ephemeral: true });
+      await interaction.followUp({ content: errorMessage, ephemeral: true });
     }
-    catch (e) {
-      let errorMessage = 'There was an error saving. Please try again.';
-      if (isAirtableError(e)) {
-        errorMessage = 'There was an error from Airtable. Please try again.';
-      }
-      if (isHandledError(e)) {
-        errorMessage = e.message;
-      }
-
-      try {
-        await interaction.followUp({ content: errorMessage, ephemeral: true });
-      }
-      catch (error) {
-        console.log('Error trying to follow up add-author', error);
-      }
+    catch (error) {
+      console.log('Error trying to follow up add-author', error);
     }
   }
 }
