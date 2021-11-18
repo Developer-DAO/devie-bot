@@ -1,4 +1,4 @@
-name: Lint
+name: Lint, build and test
 
 on:
   push:
@@ -8,8 +8,15 @@ on:
     branches:
       - main
 
+env:
+  DISCORD_BOT_TOKEN: 'FAKE_TOKEN'
+  AIRTABLE_TOKEN: 'FAKE_AIRTABLE_TOKEN'
+  AIRTABLE_BASE: 'FAKE_TABLE_NAME'
+  GUILD_ID: 'FAKE_DEV_DAO_ID'
+  CLIENT_ID: 'FAKE_CLIENT_ID'
+
 jobs:
-  build:
+  action:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
