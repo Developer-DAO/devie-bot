@@ -2,9 +2,9 @@
 
 ## TL;DR
 
-This bot will allow members of the DAO to use `/slash` commands in Discord to interact with our Airtable knowledgebase.
+This bot will allow members of the DAO to use `/slash` commands in Discord to interact with our Airtable knowledge base.
 
-## Setup
+## Development Setup
 
 1. Fork the [`discord-resource-bot` repository](https://github.com/Developer-DAO/discord-resource-bot) into your GitHub account
 
@@ -61,8 +61,13 @@ Now, you can test out the slash commands you've created in the Discord server wh
 
 These are the current commands the bot supports:
 
-- `/ping` - Send a test request to the bot
-- `/add-resource` - Add a new entry to the knowledgebase
+- `/add-author` - Add an author to the knowledge base
+- `/add-blockchain` - Add a blockchain to the knowledge base
+- `/add-category` - Add a category to the knowledge base
+- `/add-contributor` - Add a category to the knowledge base
+- `/add-resource` - Add a new resource to the knowledge base
+- `/add-tag` - Add a tag to the knowledge base
+- `/add-glossary` - Add a glossary term and description to the knowledge base
 
 ## Linting
 
@@ -71,6 +76,12 @@ To check if your code will compile and is linted appropriately, you can run:
 ```
 npm run lint
 ```
+
+## Production deployment
+
+The bot is deployed to [Heroku](https://heroku.com)
+
+See [Heroku](docs/heroku.md) for more information.
 
 ## Support
 

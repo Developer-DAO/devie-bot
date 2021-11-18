@@ -16,7 +16,6 @@
   "inlineSourceMap": false,
   "inlineSources": true,
   "declaration": false,
-  // This avoids building the files.
-  "noEmit": true,
+  "outDir": "./dist",
   }
 }

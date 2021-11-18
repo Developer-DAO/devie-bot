@@ -1,5 +1,5 @@
 import { SlashCommandBuilder } from '@discordjs/builders';
-import { CommandInteraction, MessageActionRow, MessageButton } from 'discord.js';
+import { CommandInteraction, Message, MessageActionRow, MessageButton } from 'discord.js';
 import { createCategory, findCategoryByName, isAirtableError } from '../utils';
 import { isHandledError } from '../utils/error';
 
@@ -38,10 +38,14 @@ export async function execute(interaction: CommandInteraction) {
   }
 
   await interaction.reply({
-    content: `Are you sure you want to add ${category.trim()}?`,
+    content: `Are you sure you want to add \`${category.trim()}\`?`,
     components: [buttonRow],
     ephemeral: true,
   });
+
+  const interactionMessage = await interaction.fetchReply();
+
+  if (!(interactionMessage instanceof Message)) { return; }
 
   const buttonReply = await interaction.channel?.awaitMessageComponent({ componentType: 'BUTTON' });
   if (!buttonReply) {
@@ -77,7 +81,12 @@ export async function execute(interaction: CommandInteraction) {
         errorMessage = e.message;
       }
 
-      await interaction.followUp({ content: errorMessage, ephemeral: true });
+      try {
+        await interaction.followUp({ content: errorMessage, ephemeral: true });
+      }
+      catch (error) {
+        console.log('Error trying to follow up add-category', error);
+      }
     }
   }
 }

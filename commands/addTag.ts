@@ -1,5 +1,5 @@
 import { SlashCommandBuilder } from '@discordjs/builders';
-import { CommandInteraction, MessageActionRow, MessageButton } from 'discord.js';
+import { CommandInteraction, Message, MessageActionRow, MessageButton } from 'discord.js';
 import { createTag, findTagByName, isAirtableError } from '../utils';
 import { isHandledError } from '../utils/error';
 
@@ -24,7 +24,7 @@ export async function execute(interaction: CommandInteraction) {
     .setStyle('DANGER');
   const yesButton = new MessageButton()
     .setCustomId(REPLY.YES)
-    .setLabel('Add tag')
+    .setLabel('Yes, add tag')
     .setStyle('PRIMARY');
   const buttonRow = new MessageActionRow()
     .addComponents(
@@ -38,12 +38,16 @@ export async function execute(interaction: CommandInteraction) {
   }
 
   await interaction.reply({
-    content: `Are you sure you want to add ${tag.trim()}?`,
+    content: `Are you sure you want to add \`${tag.trim()}\`?`,
     components: [buttonRow],
     ephemeral: true,
   });
 
-  const buttonReply = await interaction.channel?.awaitMessageComponent({ componentType: 'BUTTON' });
+  const interactionMessage = await interaction.fetchReply();
+
+  if (!(interactionMessage instanceof Message)) { return; }
+
+  const buttonReply = await interactionMessage.awaitMessageComponent({ componentType: 'BUTTON' });
   if (!buttonReply) {
     return;
   }
@@ -77,7 +81,12 @@ export async function execute(interaction: CommandInteraction) {
         errorMessage = error.message;
       }
 
-      await interaction.followUp({ content: errorMessage, ephemeral: true });
+      try {
+        await interaction.followUp({ content: errorMessage, ephemeral: true });
+      }
+      catch (e) {
+        console.log('Error trying to follow up add-tag', e);
+      }
     }
   }
 }

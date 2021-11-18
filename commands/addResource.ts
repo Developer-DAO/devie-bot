@@ -1,5 +1,5 @@
 import { SlashCommandBuilder, inlineCode } from '@discordjs/builders';
-import { CommandInteraction, MessageActionRow, MessageButton, MessageEmbed, MessageSelectMenu } from 'discord.js';
+import { CommandInteraction, Message, MessageActionRow, MessageButton, MessageEmbed, MessageSelectMenu } from 'discord.js';
 import { LookupItem } from '../types';
 import { isHandledError } from '../utils/error';
 import { createResource, findContributor, findResourceByUrl, isAirtableError, isContributor, isValidUrl, readAuthors, readBlockchain, readCategory, readTags, ResourceBuilder } from '../utils/index';
@@ -167,36 +167,38 @@ export async function execute(interaction: CommandInteraction) {
 
   const selectionRows = [authorRow, blockchainRow, categoryRow, tagsRow];
 
-  await interaction.editReply({
+  const interactionMessage = await interaction.editReply({
     embeds: [resourceEmbed],
     content: 'Tell me about the resource',
     components: selectionRows,
   });
 
-  const collector = interaction.channel?.createMessageComponentCollector({
+  if (!(interactionMessage instanceof Message)) { return; }
+
+  const collector = interactionMessage.createMessageComponentCollector({
     maxComponents: 5,
     time: 120_000,
     componentType: 'SELECT_MENU',
   });
 
-  collector?.on('collect', (menuInteraction) => {
+  collector?.on('collect', async (menuInteraction) => {
     switch (menuInteraction.customId) {
       case 'category': {
-        resource.category = menuInteraction.values.map(v => {
+        resource.category = menuInteraction.values.map((v: string) => {
           const lookupItem = categories.find((value) => value.id === v);
           return lookupItem ?? { name: 'Unknown', id: v };
         });
         break;
       }
       case 'tags': {
-        resource.tags = menuInteraction.values.map(v => {
+        resource.tags = menuInteraction.values.map((v: string) => {
           const lookupItem = tags.find((value) => value.id === v);
           return lookupItem ?? { name: 'Unknown', id: v };
         });
         break;
       }
       case 'blockchain': {
-        resource.blockchain = menuInteraction.values.map(v => {
+        resource.blockchain = menuInteraction.values.map((v: string) => {
           const lookupItem = blockchain.find((value) => value.id === v);
           return lookupItem ?? { name: 'Unknown', id: v };
         });
@@ -303,7 +305,12 @@ export async function execute(interaction: CommandInteraction) {
           errorMessage = error.message;
         }
 
-        await interaction.followUp({ content: errorMessage, ephemeral: true });
+        try {
+          await interaction.followUp({ content: errorMessage, ephemeral: true });
+        }
+        catch (e) {
+          console.log('Error trying to follow up add-resource', e);
+        }
       }
     }
   })

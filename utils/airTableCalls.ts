@@ -11,12 +11,13 @@ dotenv.config()
 const base = new Airtable({ apiKey: process.env.AIRTABLE_TOKEN! }).base(process.env.AIRTABLE_BASE!)
 
 const TABLES = {
-  AUTHOR: () => base('Authors'),
+  AUTHOR: () => base('Author'),
   CONTRIBUTOR: () => base('Contributor'),
   TAGS: () => base('Tags'),
   CATEGORY: () => base('Category'),
   BLOCKCHAIN: () => base('Blockchain'),
-  RESOURCES: () => base('Resources'),
+  RESOURCES: () => base('Resource'),
+  GLOSSARY: () => base('Glossary'),
 };
 
 export async function isContributor(user: User) {
@@ -111,6 +112,19 @@ export async function createBlockchain(blockchain: string, website: string | nul
   records?.forEach((record) => console.log(record.getId()));
 }
 
+export async function createGlossaryTerm(term: string, description: string, website: string) {
+  const records = await TABLES.GLOSSARY().create([
+    {
+      'fields': {
+        Name: term,
+        Description: description,
+        'Learn more link': website,
+      },
+    },
+  ])
+  records?.forEach((record) => console.log(record.getId()));
+}
+
 export async function createResource(resource: Resource) {
   try {
     await TABLES.RESOURCES().create([
@@ -198,7 +212,7 @@ export function readLookup(table: Table<FieldSet>): Promise<LookupItem[]> {
 export async function findResourceByUrl(url: string): Promise<LookupItem | undefined> {
   const records = await TABLES.RESOURCES().select({
     filterByFormula: `LOWER({Source}) = '${url.toLowerCase()}'`,
-    view: 'Grid view',
+    view: 'Entire list',
   }).all();
   if (records && records.length > 0) {
     const first = records[0];
@@ -223,6 +237,10 @@ export function findCategoryByName(name: string): Promise<LookupItem | undefined
 
 export function findBlockchainByName(name: string): Promise<LookupItem | undefined> {
   return findLookupItemByName(TABLES.BLOCKCHAIN(), name);
+}
+
+export function findGlossaryTermByName(name: string): Promise<LookupItem | undefined> {
+  return findLookupItemByName(TABLES.GLOSSARY(), name);
 }
 
 export async function findLookupItemByName(table: Table<FieldSet>, name: string): Promise<LookupItem | undefined> {
