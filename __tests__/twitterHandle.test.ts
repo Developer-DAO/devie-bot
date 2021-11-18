@@ -24,7 +24,7 @@ const inputs = [
 	{ input: '@Aiden Montgomery', shouldBeValid: true },
 	{ input: 'http://www.twitter.com/' + emoji, shouldBeValid: false },
 	{ input: '@😀😃😄😂', shouldBeValid: false },
-	{ input: '😀😃😄😂',  shouldBeValid: false },
+	{ input: '😀😃😄😂', shouldBeValid: false },
 ];
 
 describe('Twitter handle', () => {
