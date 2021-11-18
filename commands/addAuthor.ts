@@ -8,7 +8,7 @@ import { isValidUrl } from '../utils/urlChecker';
 
 export const data = new SlashCommandBuilder()
   .setName('add-author')
-  .setDescription('Adds an author to the knowledgebase')
+  .setDescription('Adds an author to the knowledge base')
   .addStringOption(
     option => option.setRequired(true)
       .setName('author')

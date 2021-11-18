@@ -17,7 +17,5 @@
   "inlineSources": true,
   "declaration": false,
   "outDir": "./dist",
-  // This avoids building the files.
-  // "noEmit": true,
   }
 }

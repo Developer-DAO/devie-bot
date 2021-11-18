@@ -2,7 +2,7 @@
 
 ## TL;DR
 
-This bot will allow members of the DAO to use `/slash` commands in Discord to interact with our Airtable knowledgebase.
+This bot will allow members of the DAO to use `/slash` commands in Discord to interact with our Airtable knowledge base.
 
 ## Development Setup
 
@@ -67,7 +67,7 @@ These are the current commands the bot supports:
 - `/add-contributor` - Add a category to the knowledge base
 - `/add-resource` - Add a new resource to the knowledge base
 - `/add-tag` - Add a tag to the knowledge base
-- `/ping` - Send a test request to the bot
+- `/add-glossary` - Add a glossary term and description to the knowledge base
 
 ## Linting
 
