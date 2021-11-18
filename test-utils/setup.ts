@@ -65,7 +65,7 @@ function createFakeClient() {
   };
 
   const createCommandInteraction = (channel: TDiscord.Channel, member: TDiscord.GuildMember, devRole: TDiscord.Role) =>
-    (command: string, options: any[] = []): TDiscord.CommandInteraction => {
+    (command: string, options: unknown[] = []): TDiscord.CommandInteraction => {
       // @ts-expect-error -- private constructor
       return new CommandInteraction(client, {
         id: SnowflakeUtil.generate(),
@@ -83,7 +83,7 @@ function createFakeClient() {
           deaf: false,
           mute: false,
           joined_at: '0',
-          roles: [],
+          roles: [devRole.id],
           user: {
             id: member.user.id,
             discriminator: member.user.discriminator,
@@ -94,7 +94,7 @@ function createFakeClient() {
         user: member.user,
         data: {
           id: SnowflakeUtil.generate(),
-          name: 'add-tag',
+          name: command,
           options,
           resolved: {},
           guild_id: guild.id,

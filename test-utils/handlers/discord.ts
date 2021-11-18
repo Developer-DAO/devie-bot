@@ -1,6 +1,6 @@
 import type * as TDiscord from 'discord.js'
 import { rest } from 'msw'
-import { SnowflakeUtil, Util } from 'discord.js'
+import { SnowflakeUtil } from 'discord.js'
 import { InternalDiscordManager } from '../setup'
 
 /**
