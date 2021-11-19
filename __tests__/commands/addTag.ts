@@ -1,6 +1,6 @@
 import { ApplicationCommandOptionTypes } from 'discord.js/typings/enums';
 import { execute } from '../../commands/addTag';
-import { setup } from '../../test-utils/setup';
+import { setup, InternalDiscordManager } from '../../test-utils/setup';
 
 describe('Command add-tag', () => {
   it('should not run if tag is null', async () => {
@@ -10,11 +10,9 @@ describe('Command add-tag', () => {
       [{ name: 'tag', type: ApplicationCommandOptionTypes.STRING, value: null }],
     );
 
-    // Instead of mocking this function, we could (should?)
-    // add a route to the discord handlers.
-    interaction.reply = jest.fn();
-
     await execute(interaction);
-    expect(interaction.reply).toHaveBeenCalledWith('Tag missing, please try again.')
+
+    const capturedMessageFromMockServer = InternalDiscordManager.interaction[interaction.id];
+    expect(capturedMessageFromMockServer.content).toEqual('Tag missing, please try again.');
   });
 });

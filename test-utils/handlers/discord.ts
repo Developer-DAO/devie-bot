@@ -67,6 +67,18 @@ const handlers = [
       return res(ctx.status(200), ctx.json({ id: memberId }))
     },
   ),
+  rest.post('*/api/:apiVersion/interactions/:interactionId//callback', (req, res, ctx) => {
+    const { interactionId } = req.params;
+    const { type, data: { content } } = req.body as { type: TDiscord.InteractionType, data: { content: string } };
+    requiredParam(interactionId, 'interactionId param required')
+
+    InternalDiscordManager.interaction[interactionId] = {
+      type,
+      content,
+    };
+
+    return res(ctx.status(200), ctx.json({}))
+  }),
 ]
 
 function requiredParam(

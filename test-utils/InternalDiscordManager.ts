@@ -7,6 +7,7 @@ type DiscordManagerType = {
   guilds: Record<string, TDiscord.Guild>
   clients: Array<TDiscord.Client>
   reactions: Record<string, Record<string, TDiscord.MessageReaction>>
+  interaction: Record<string, { type: TDiscord.InteractionType } & TDiscord.InteractionReplyOptions>,
   cleanup: () => void
 }
 
@@ -21,6 +22,7 @@ const InternalDiscordManager: DiscordManagerType = {
   clients: [],
   // map of message IDs to a map of reaction emoji names to the MessageReaction
   reactions: {},
+  interaction: {},
   cleanup: () => {
     InternalDiscordManager.channels = {}
     InternalDiscordManager.guilds = {}

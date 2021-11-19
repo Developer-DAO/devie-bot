@@ -2,8 +2,7 @@ import type * as TDiscord from 'discord.js';
 import Discord, { SnowflakeUtil, CommandInteraction } from 'discord.js';
 import { InternalDiscordManager } from './InternalDiscordManager';
 
-function createFakeClient() {
-  const client = new Discord.Client({ intents: [] });
+export const client = new Discord.Client({ intents: [] });
   Object.assign(client, {
     token: process.env.DISCORD_TOKEN,
     // @ts-expect-error -- private constructor
@@ -14,6 +13,7 @@ function createFakeClient() {
     }),
   });
 
+function createFakeClient() {
   // @ts-expect-error -- private constructor
   const guild = new Discord.Guild(client, {
     id: SnowflakeUtil.generate(),
@@ -131,7 +131,6 @@ async function setup() {
   const devRole = createRole('dev');
   const member = await createMember('fakeUser', devRole);
   const channel = await createChannel('intro');
-
   return {
     createCommandInteraction: createCommandInteraction(channel, member, devRole),
     cleanup,
