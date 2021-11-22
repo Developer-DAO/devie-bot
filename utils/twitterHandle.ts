@@ -65,7 +65,6 @@ export function createTwitterHandle(input: string): UTwitterHandleResponse {
     return { isValid: true, handle: cleanHandle, URL: twitterUrl };
   }
   else {
-    console.error('Invalid Handle', { original: input, cleaned: cleanHandle });
     return { isValid: false };
   }
 }

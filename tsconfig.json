@@ -10,7 +10,8 @@
   "skipLibCheck": true,
   "forceConsistentCasingInFileNames": true,
   "types": [
-    "node"
+    "node",
+    "jest"
   ],
   "sourceMap": true,
   "inlineSourceMap": false,

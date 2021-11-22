@@ -3,12 +3,13 @@
     "node": "16.6.0"
   },
   "scripts": {
-    "fmt": "eslint . --fix",
-    "lint": "tsc --noEmit && eslint .",
+    "fmt": "eslint . --fix --ext .ts",
+    "lint": "tsc --noEmit && eslint . --ext .ts",
     "deploy:commands": "ts-node deploy-commands.ts",
     "dev": "ts-node index.ts",
     "build": "tsc",
-    "postinstall": "tsc"
+    "postinstall": "tsc",
+    "test": "jest"
   },
   "dependencies": {
     "@discordjs/builders": "^0.8.1",
@@ -19,9 +20,13 @@
     "dotenv": "^10.0.0"
   },
   "devDependencies": {
+    "@types/jest": "^27.0.2",
     "@typescript-eslint/eslint-plugin": "^5.2.0",
     "@typescript-eslint/parser": "^5.2.0",
     "eslint": "^8.1.0",
+    "jest": "^27.3.1",
+    "msw": "^0.35.0",
+    "ts-jest": "^27.0.7",
     "ts-node": "^10.4.0",
     "typescript": "^4.4.4"
   }

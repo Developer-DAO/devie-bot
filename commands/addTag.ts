@@ -33,7 +33,7 @@ export async function execute(interaction: CommandInteraction) {
     );
 
   if (tag === undefined || tag == null) {
-    interaction.reply('Tag missing, please try again.');
+    await interaction.reply('Tag missing, please try again.');
     return;
   }
 
