@@ -158,7 +158,6 @@ export async function findContributor(user: User) {
     // filterByFormula: `{Discord Handle} = '${discordHandle}'`,
     filterByFormula: `{Discord Id} = '${discordID}'`,
     maxRecords: 1,
-    view: 'Grid view',
   }).all();
   if (records) {
     return records[0];
@@ -185,8 +184,7 @@ export function readLookup(table: Table<FieldSet>): Promise<LookupItem[]> {
   return new Promise((resolve, reject) => {
     const items: LookupItem[] = [];
     table.select({
-      maxRecords: 10,
-      view: 'Grid view',
+      sort: [{ field: 'Name', direction: 'asc' }],
     }).eachPage(function page(records, fetchNextPage) {
       records.forEach(record => {
         const name = record.get('Name');
@@ -203,7 +201,6 @@ export function readLookup(table: Table<FieldSet>): Promise<LookupItem[]> {
         console.error(err);
         reject(err);
       }
-      items.sort((a, b) => a.name.localeCompare(b.name));
       resolve(items);
     });
   })
@@ -212,7 +209,6 @@ export function readLookup(table: Table<FieldSet>): Promise<LookupItem[]> {
 export async function findResourceByUrl(url: string): Promise<LookupItem | undefined> {
   const records = await TABLES.RESOURCES().select({
     filterByFormula: `LOWER({Source}) = '${url.toLowerCase()}'`,
-    view: 'Entire list',
   }).all();
   if (records && records.length > 0) {
     const first = records[0];
@@ -246,7 +242,6 @@ export function findGlossaryTermByName(name: string): Promise<LookupItem | undef
 export async function findLookupItemByName(table: Table<FieldSet>, name: string): Promise<LookupItem | undefined> {
   const records = await table.select({
     filterByFormula: `LOWER({Name}) = '${name.toLowerCase()}'`,
-    view: 'Grid view',
   }).all();
   if (records && records.length > 0) {
     const first = records[0];
