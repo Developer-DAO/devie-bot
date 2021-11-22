@@ -184,6 +184,7 @@ export function readLookup(table: Table<FieldSet>): Promise<LookupItem[]> {
   return new Promise((resolve, reject) => {
     const items: LookupItem[] = [];
     table.select({
+      maxRecords: 25,
       sort: [{ field: 'Name', direction: 'asc' }],
     }).eachPage(function page(records, fetchNextPage) {
       records.forEach(record => {
