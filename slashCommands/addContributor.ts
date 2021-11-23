@@ -1,11 +1,11 @@
 import { SlashCommandBuilder } from '@discordjs/builders';
 import { CommandInteraction } from 'discord.js';
-import { ISlashCommandConfig } from '../types';
+import { SlashCommandConfig } from '../types';
 import { isContributor, createContributor, getCleanDevID, isAirtableError } from '../utils';
 import { isHandledError } from '../utils/error';
 import { createTwitterHandle } from '../utils/twitterHandle';
 
-export const AddContributorCommand: ISlashCommandConfig = {
+export const AddContributorCommand: SlashCommandConfig = {
   name: 'add-contributor',
   roles: ['dev'],
   commandJSON: () => new SlashCommandBuilder()

@@ -1,7 +1,7 @@
 import { RESTPostAPIApplicationCommandsJSONBody } from 'discord-api-types';
 import { CommandInteraction } from 'discord.js';
 
-export interface ISlashCommandConfig {
+export interface SlashCommandConfig {
   name: string;
   roles: string[];
   commandJSON: () => RESTPostAPIApplicationCommandsJSONBody;

@@ -1,12 +1,12 @@
 import { Client, Collection } from 'discord.js';
 import { AllCommands } from '../slashCommands';
-import { AllEvents } from '../events';
-import { ISlashCommandConfig } from '../types';
+import { ReadyEvent, InteractionCreateEvent } from '../events';
+import { SlashCommandConfig } from '../types';
 
 export class discordClient extends Client {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     [key: string]: any
-    commands: Collection<string, ISlashCommandConfig> = new Collection();
+    commands: Collection<string, SlashCommandConfig> = new Collection();
 
     async loadCommandsToClient() {
       for (let index = 0; index < AllCommands.length; index++) {
@@ -16,14 +16,7 @@ export class discordClient extends Client {
     }
 
     async loadEventsToClient() {
-      for (let index = 0; index < AllEvents.length; index++) {
-        const event = AllEvents[index];
-        if (event.once) {
-          this.once(event.name, event.execute)
-        }
-        else {
-          this.on(event.name, event.execute)
-        }
-      }
+      this.once(ReadyEvent.name, ReadyEvent.execute);
+      this.on(InteractionCreateEvent.name, InteractionCreateEvent.execute);
     }
 }

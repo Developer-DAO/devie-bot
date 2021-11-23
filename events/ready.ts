@@ -1,10 +1,10 @@
 import { Client } from 'discord.js';
-import { IReadyEventConfig } from '../types';
+import { ReadyEventConfig } from '../types';
 
 export const name = 'ready';
 export const once = true;
 
-export const ReadyEvent: IReadyEventConfig = {
+export const ReadyEvent: ReadyEventConfig = {
   name: 'ready',
   once: true,
   execute: async (client: Client) => {

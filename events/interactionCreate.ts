@@ -1,8 +1,8 @@
 import { GuildMemberRoleManager, Interaction } from 'discord.js';
 import { discordClient } from '../utils';
-import { IInteractionCreateEventConfig } from '../types';
+import { InteractionCreateEventConfig } from '../types';
 
-export const InteractionCreateEvent: IInteractionCreateEventConfig = {
+export const InteractionCreateEvent: InteractionCreateEventConfig = {
   name: 'interactionCreate',
   once: false,
   execute: async (interaction: Interaction) => {

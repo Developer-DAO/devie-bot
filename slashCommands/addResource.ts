@@ -1,10 +1,10 @@
 import { SlashCommandBuilder, inlineCode } from '@discordjs/builders';
 import { CommandInteraction, Message, MessageActionRow, MessageButton, MessageEmbed, MessageSelectMenu } from 'discord.js';
-import { LookupItem, ISlashCommandConfig } from '../types';
+import { LookupItem, SlashCommandConfig } from '../types';
 import { isHandledError } from '../utils/error';
 import { createResource, findContributor, findResourceByUrl, isAirtableError, isContributor, isValidUrl, readAuthors, readBlockchain, readCategory, readTags, ResourceBuilder } from '../utils/index';
 
-export const AddResourceCommand: ISlashCommandConfig = {
+export const AddResourceCommand: SlashCommandConfig = {
   name: 'add-resource',
   roles: ['dev'],
   commandJSON: () => new SlashCommandBuilder()
@@ -40,7 +40,7 @@ export const AddResourceCommand: ISlashCommandConfig = {
   execute: async (interaction: CommandInteraction) => {
     let contributor;
     if (!await isContributor(interaction.user)) {
-      await interaction.reply(`it looks like you are not a contributor yet!\nPlease add yourself using: ${inlineCode('/add-contributor')}`)
+      await interaction.reply({ content: `it looks like you are not a contributor yet!\nPlease add yourself using: ${inlineCode('/add-contributor')}`, ephemeral: true })
       return
     }
     else {

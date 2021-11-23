@@ -1,10 +1,10 @@
 import { SlashCommandBuilder } from '@discordjs/builders';
 import { CommandInteraction, Message, MessageActionRow, MessageButton } from 'discord.js';
-import { ISlashCommandConfig } from '../types';
+import { SlashCommandConfig } from '../types';
 import { createCategory, findCategoryByName, isAirtableError } from '../utils';
 import { isHandledError } from '../utils/error';
 
-export const AddCategoryCommand: ISlashCommandConfig = {
+export const AddCategoryCommand: SlashCommandConfig = {
   name: 'add-category',
   roles: ['dev'],
   commandJSON: () => new SlashCommandBuilder()
@@ -36,7 +36,7 @@ export const AddCategoryCommand: ISlashCommandConfig = {
       );
 
     if (category === undefined || category == null) {
-      interaction.reply('Category missing, please try again.');
+      interaction.reply({ content: 'Category missing, please try again.', ephemeral: true });
       return;
     }
 

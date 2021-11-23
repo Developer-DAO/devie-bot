@@ -1,10 +1,10 @@
 import { SlashCommandBuilder } from '@discordjs/builders';
 import { CommandInteraction, Message, MessageActionRow, MessageButton } from 'discord.js';
-import { ISlashCommandConfig } from '../types';
+import { SlashCommandConfig } from '../types';
 import { createTag, findTagByName, isAirtableError } from '../utils';
 import { isHandledError } from '../utils/error';
 
-export const AddTagCommand: ISlashCommandConfig = {
+export const AddTagCommand: SlashCommandConfig = {
   name: 'add-tag',
   roles: ['dev'],
   commandJSON: () => new SlashCommandBuilder()
@@ -36,7 +36,7 @@ export const AddTagCommand: ISlashCommandConfig = {
       );
 
     if (tag === undefined || tag == null) {
-      await interaction.reply('Tag missing, please try again.');
+      await interaction.reply({ content: 'Tag missing, please try again.', ephemeral: true });
       return;
     }
 

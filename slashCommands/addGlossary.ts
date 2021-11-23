@@ -3,9 +3,9 @@ import { CommandInteraction, Message, MessageActionRow, MessageButton } from 'di
 import { createGlossaryTerm, findGlossaryTermByName, isAirtableError } from '../utils';
 import { isValidUrl } from '../utils/urlChecker';
 import { isHandledError } from '../utils/error';
-import { ISlashCommandConfig } from '../types';
+import { SlashCommandConfig } from '../types';
 
-export const AddGlossaryCommand: ISlashCommandConfig = {
+export const AddGlossaryCommand: SlashCommandConfig = {
   name: 'add-glossary',
   roles: ['dev'],
   commandJSON: () => new SlashCommandBuilder()

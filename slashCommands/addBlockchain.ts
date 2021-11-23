@@ -1,10 +1,10 @@
 import { SlashCommandBuilder } from '@discordjs/builders';
 import { CommandInteraction, Message, MessageActionRow, MessageButton } from 'discord.js';
-import { ISlashCommandConfig } from '../types';
+import { SlashCommandConfig } from '../types';
 import { createBlockchain, findBlockchainByName, isAirtableError } from '../utils';
 import { isHandledError } from '../utils/error';
 
-export const AddBlockchainCommand: ISlashCommandConfig = {
+export const AddBlockchainCommand: SlashCommandConfig = {
   name: 'add-blockchain',
   roles: ['dev'],
   commandJSON: () => new SlashCommandBuilder()
@@ -41,7 +41,7 @@ export const AddBlockchainCommand: ISlashCommandConfig = {
       );
 
     if (blockchain === undefined || blockchain == null) {
-      interaction.reply('Blockchain missing, please try again.');
+      interaction.reply({ content: 'Blockchain missing, please try again.', ephemeral: true });
       return;
     }
 

@@ -1,6 +1,6 @@
 import { SlashCommandBuilder } from '@discordjs/builders';
 import { CommandInteraction, Message, MessageActionRow, MessageButton, MessageEmbed } from 'discord.js';
-import { Author as AuthorInfo, ISlashCommandConfig } from '../types';
+import { Author as AuthorInfo, SlashCommandConfig } from '../types';
 import { createAuthor, isAirtableError } from '../utils/airTableCalls';
 import HandledError, { isHandledError } from '../utils/error';
 import { createTwitterHandle } from '../utils/twitterHandle';
@@ -25,7 +25,7 @@ function getSanitizedAuthorInfo(interaction: CommandInteraction): AuthorInfo {
   }
 }
 
-export const AddAuthorCommand: ISlashCommandConfig = {
+export const AddAuthorCommand: SlashCommandConfig = {
   name: 'add-author',
   roles: ['dev'],
   commandJSON: () => {

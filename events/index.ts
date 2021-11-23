@@ -1,7 +1,2 @@
-import { InteractionCreateEvent } from './interactionCreate';
-import { ReadyEvent } from './ready';
-
-export const AllEvents = [
-  InteractionCreateEvent,
-  ReadyEvent,
-]
+export * from './interactionCreate';
+export * from './ready';
