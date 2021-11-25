@@ -5,7 +5,6 @@
   "scripts": {
     "fmt": "eslint . --fix --ext .ts",
     "lint": "tsc --noEmit && eslint . --ext .ts",
-    "deploy:commands": "ts-node deploy-commands.ts",
     "dev": "ts-node index.ts",
     "build": "tsc",
     "postinstall": "tsc",

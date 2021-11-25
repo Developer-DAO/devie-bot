@@ -27,10 +27,10 @@ git clone git@github.com:YOUR_USER_NAME/devie-bot.git
 npm install
 ```
 
-4. Create a `.env` file at the root of the project
+4. Create a `.env` file at the root of the project by copying and renaming `.example.env`
 
 ```bash
-touch .env
+cp .example.env .env
 ```
 
 5. Follow [this tutorial](https://discordjs.guide/preparations/setting-up-a-bot-application.html) to create a Discord bot. Then, update your `.env` with the `DISCORD_TOKEN`, `CLIENT_ID` values created during the tutorial.
@@ -42,23 +42,34 @@ DISCORD_TOKEN=abc
 CLIENT_ID=123
 ```
 
-6. We also need to add our `GUILD_ID` to the `.env` file. This can be found in your Discord server settings under Widget > Server ID. We also need `POST_TO` and `CURATE_FROM` for the curation portion.
+6. We also need to add our `GUILD_ID` to the `.env` file. This can be found in your Discord server settings under Widget > Server ID. We also need `POST_TO`.
 
 ```bash
 # .env
 
 GUILD_ID=xyz
-POST_TO=id
-CURATE_FROM=id,id,id
 ```
 
-7. Deploy your commands to the bot created above
+7. The bot integrates with AirTable, so you will need access to an [AirTable](https://www.airtable.) base and API token. Either setup your own test base or request access to the exist test instance. Once you have access to an `AIRTABLE_BASE` ID and `AIRTABLE_TOKEN` API key, enter them into the .env file.
 
 ```bash
-npm run deploy:commands
+# .env
+
+AIRTABLE_BASE=abc
+AIRTABLE_TOKEN=abc
 ```
 
-8. Start the bot server
+8. The bot monitors a configurable channel for reactions to messages and cross posts ones that receive a configured number of a 📰 reaction. These channels and the number of reactions required to trigger the cross post are set in the `.env` file. In discord, with developer mode enabled, right clicking any avatar or channel name will present a `Copy ID` option.
+
+```bash
+# .env
+
+CURATE_FROM=123
+POST_TO=123
+POST_THRESHOLD=5
+```
+
+9. Start the bot server
 
 ```bash
 npm run dev
@@ -66,9 +77,9 @@ npm run dev
 
 Now, you can test out the slash commands you've created in the Discord server where you installed the bot.
 
-## Commands
+## Slash Commands
 
-These are the current commands the bot supports:
+These are the current slash commands the bot supports:
 
 - `/add-author` - Add an author to the knowledge base
 - `/add-blockchain` - Add a blockchain to the knowledge base

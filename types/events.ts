@@ -17,3 +17,9 @@ export interface InteractionCreateEventConfig extends EventConfig<'interactionCr
   once: false,
   execute: (...args: ClientEvents['interactionCreate']) => Promise<void>
 }
+
+export interface MessageReactionAddEventConfig extends EventConfig<'messageReactionAdd'> {
+  name: 'messageReactionAdd',
+  once: false,
+  execute: (...args: ClientEvents['messageReactionAdd']) => Promise<void>
+}
