@@ -7,7 +7,7 @@ Devie is a discord bot by the devs for the devs. Currently acts as an aggregator
 
 ## How it Works
 
-1. Upvote posts in either `#🔮-probably-nothing` or `#learning-resources` by reacting with a 📰
+1. Upvote posts in either `#🔮-probably-nothing` or `#learning-resources` by reacting with a 📰 (:newspaper:)
 2. Five 📰 will trigger the bot to post into the `#newsletter` channel (might be updated)
 3. The team will use these votes to further curate the newsletter 🤙
 
@@ -27,10 +27,10 @@ git clone git@github.com:YOUR_USER_NAME/devie-bot.git
 npm install
 ```
 
-4. Create a `.env` file at the root of the project by copying and renaming `.example.env`
+4. Create a `.env` file at the root of the project
 
 ```bash
-cp .example.env .env
+touch .env
 ```
 
 5. Follow [this tutorial](https://discordjs.guide/preparations/setting-up-a-bot-application.html) to create a Discord bot. Then, update your `.env` with the `DISCORD_TOKEN`, `CLIENT_ID` values created during the tutorial.
@@ -42,34 +42,18 @@ DISCORD_TOKEN=abc
 CLIENT_ID=123
 ```
 
-6. We also need to add our `GUILD_ID` to the `.env` file. This can be found in your Discord server settings under Widget > Server ID. We also need `POST_TO`.
+6. We also need to add our `GUILD_ID` to the `.env` file. We also need `POST_TO`, `CURATE_FROM` and `POST_THRESHOLD` for the curation portion. In discord, with developer mode enabled, right clicking any avatar or channel name will present a `Copy ID` option.
 
 ```bash
 # .env
 
 GUILD_ID=xyz
-```
-
-7. The bot integrates with AirTable, so you will need access to an [AirTable](https://www.airtable.) base and API token. Either setup your own test base or request access to the exist test instance. Once you have access to an `AIRTABLE_BASE` ID and `AIRTABLE_TOKEN` API key, enter them into the .env file.
-
-```bash
-# .env
-
-AIRTABLE_BASE=abc
-AIRTABLE_TOKEN=abc
-```
-
-8. The bot monitors a configurable channel for reactions to messages and cross posts ones that receive a configured number of a 📰 reaction. These channels and the number of reactions required to trigger the cross post are set in the `.env` file. In discord, with developer mode enabled, right clicking any avatar or channel name will present a `Copy ID` option.
-
-```bash
-# .env
-
-CURATE_FROM=123
-POST_TO=123
+POST_TO=id
+CURATE_FROM=id,id,id
 POST_THRESHOLD=5
 ```
 
-9. Start the bot server
+7. Start the bot server
 
 ```bash
 npm run dev
@@ -77,9 +61,9 @@ npm run dev
 
 Now, you can test out the slash commands you've created in the Discord server where you installed the bot.
 
-## Slash Commands
+## Commands
 
-These are the current slash commands the bot supports:
+These are the current commands the bot supports:
 
 - `/add-author` - Add an author to the knowledge base
 - `/add-blockchain` - Add a blockchain to the knowledge base
