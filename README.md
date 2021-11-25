@@ -11,8 +11,7 @@ Devie is a discord bot by the devs for the devs. Currently acts as an aggregator
 2. Five 📰 will trigger the bot to post into the `#newsletter` channel (might be updated)
 3. The team will use these votes to further curate the newsletter 🤙
 
-
-## Setup
+## Development Setup
 
 1. Fork the [`devie-bot` repository](https://github.com/Developer-DAO/devie-bot) into your GitHub account
 

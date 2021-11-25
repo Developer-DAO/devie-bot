@@ -10,13 +10,13 @@
   "skipLibCheck": true,
   "forceConsistentCasingInFileNames": true,
   "types": [
-    "node"
+    "node",
+    "jest"
   ],
   "sourceMap": true,
   "inlineSourceMap": false,
   "inlineSources": true,
   "declaration": false,
-  // This avoids building the files.
-  "noEmit": true,
+  "outDir": "./dist",
   }
 }

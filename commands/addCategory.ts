@@ -1,47 +1,92 @@
 import { SlashCommandBuilder } from '@discordjs/builders';
-import { CommandInteraction, Message } from 'discord.js';
+import { CommandInteraction, Message, MessageActionRow, MessageButton } from 'discord.js';
+import { createCategory, findCategoryByName, isAirtableError } from '../utils';
+import { isHandledError } from '../utils/error';
 
 export const data = new SlashCommandBuilder()
-    .setName('add-category')
-    .setDescription('Adds a category to the knowledgebase')
-    .addStringOption(
-      option => option.setRequired(true)
+  .setName('add-category')
+  .setDescription('Adds a category to the knowledge base')
+  .addStringOption(
+    option => option.setRequired(true)
       .setName('category')
       .setDescription('Enter a category'))
 
 export async function execute(interaction: CommandInteraction) {
-  const userInput = interaction.options.getString('category')
-  const validAnswers = ['y', 'n']
-  const filter = (response: Message) => {
-    return validAnswers.some(answer => answer.toLowerCase() === response.content.toLowerCase()) && response.author.id === interaction.user.id
+  const category = interaction.options.getString('category')
+  const REPLY = {
+    YES: 'yes',
+    NO: 'no',
+  };
+
+  const noButton = new MessageButton()
+    .setCustomId(REPLY.NO)
+    .setLabel('Cancel')
+    .setStyle('DANGER');
+  const yesButton = new MessageButton()
+    .setCustomId(REPLY.YES)
+    .setLabel('Add category')
+    .setStyle('PRIMARY');
+  const buttonRow = new MessageActionRow()
+    .addComponents(
+      noButton,
+      yesButton,
+    );
+
+  if (category === undefined || category == null) {
+    interaction.reply('Category missing, please try again.');
+    return;
   }
 
   await interaction.reply({
-      content: `you are submiting ${userInput} as a new resource. \n Is this category correct? [Y/N]`,
-      ephemeral: true,
-  })
+    content: `Are you sure you want to add \`${category.trim()}\`?`,
+    components: [buttonRow],
+    ephemeral: true,
+  });
 
-  const collector = await interaction.channel?.awaitMessages({ filter, max: 1, time: 15000, errors: ['time'] })
-  console.log('Recieved interaction')
-  collector?.map((message: Message) => {
-    console.log(message);
-    switch (message.content.toLowerCase()) {
-      case 'y':
-        interaction.followUp({
-          content: 'Confirmed!',
-          ephemeral: true,
-        });
-        console.log(`Saving ${userInput} to the Category table`);
-        // TODO: Add this to Airtable
-        break;
-      case 'n':
-          interaction.followUp({
-              content: 'Try again with the correct resource please!',
-              ephemeral: true,
-          })
-          break;
-      default:
-          break;
+  const interactionMessage = await interaction.fetchReply();
+
+  if (!(interactionMessage instanceof Message)) { return; }
+
+  const buttonReply = await interaction.channel?.awaitMessageComponent({ componentType: 'BUTTON' });
+  if (!buttonReply) {
+    return;
+  }
+
+  const buttonSelected = buttonReply.customId;
+  buttonReply.update({ components: [] });
+  if (buttonSelected === REPLY.NO) {
+    buttonReply.followUp({
+      content: `"${category.trim()}" was not added`,
+      ephemeral: true,
+    })
+    return;
+  }
+  else {
+    try {
+      const foundCategory = await findCategoryByName(category.trim());
+      if (foundCategory) {
+        await interaction.editReply('This category is already registered.');
+      }
+      else {
+        await createCategory(category.trim());
+        await interaction.editReply('Thank you. The category has been added.');
+      }
     }
-  })
+    catch (e) {
+      let errorMessage = 'There was an error saving. Please try again.';
+      if (isAirtableError(e)) {
+        errorMessage = 'There was an error from Airtable. Please try again.';
+      }
+      if (isHandledError(e)) {
+        errorMessage = e.message;
+      }
+
+      try {
+        await interaction.followUp({ content: errorMessage, ephemeral: true });
+      }
+      catch (error) {
+        console.log('Error trying to follow up add-category', error);
+      }
+    }
+  }
 }

@@ -1,13 +1,14 @@
 import { SlashCommandBuilder } from '@discordjs/builders';
-import { CommandInteraction, MessageActionRow, MessageButton, MessageEmbed } from 'discord.js';
-import { AuthorInfo } from '../types/author';
+import { CommandInteraction, Message, MessageActionRow, MessageButton, MessageEmbed } from 'discord.js';
+import { Author as AuthorInfo } from '../types';
 import { createAuthor, isAirtableError } from '../utils/airTableCalls';
 import HandledError, { isHandledError } from '../utils/error';
-import isValidUrl from '../utils/urlChecker';
+import { createTwitterHandle } from '../utils/twitterHandle';
+import { isValidUrl } from '../utils/urlChecker';
 
 export const data = new SlashCommandBuilder()
   .setName('add-author')
-  .setDescription('Adds an author to the knowledgebase')
+  .setDescription('Adds an author to the knowledge base')
   .addStringOption(
     option => option.setRequired(true)
       .setName('author')
@@ -56,10 +57,20 @@ export async function execute(interaction: CommandInteraction) {
   };
 
   const author = getSanitizedAuthorInfo(interaction);
-  const { name, isDaoMember, twitterUrl, youtubeUrl } = author;
+  const { name, isDaoMember, youtubeUrl } = author;
+  let { twitterUrl } = author;
+
   const invalidUrlType = [];
-  if (twitterUrl !== '' && !isValidUrl(twitterUrl)) {
-    invalidUrlType.push(`Twitter URL (${twitterUrl})`);
+
+  if (twitterUrl !== '') {
+    const twitterResponse = createTwitterHandle(twitterUrl);
+    if (twitterResponse.isValid) {
+      twitterUrl = twitterResponse.URL;
+      author.twitterUrl = twitterUrl;
+    }
+    else {
+      invalidUrlType.push(`Twitter URL (${twitterUrl})`);
+    }
   }
 
   if (youtubeUrl !== '' && !isValidUrl(youtubeUrl)) {
@@ -83,8 +94,8 @@ export async function execute(interaction: CommandInteraction) {
     .addFields(
       { name: 'Name', value: name },
       { name: 'Author is Dao Member?', value: `${isDaoMember ? 'Yes' : 'No'}` },
-      { name: 'Twitter URL', value: `${twitterUrl === '' ? 'Not provided' : twitterUrl }` },
-      { name: 'Youtube URL', value: `${youtubeUrl === '' ? 'Not provided' : youtubeUrl }` },
+      { name: 'Twitter URL', value: `${twitterUrl === '' ? 'Not provided' : twitterUrl}` },
+      { name: 'Youtube URL', value: `${youtubeUrl === '' ? 'Not provided' : youtubeUrl}` },
     )
     .addField(blankSpaceField, blankSpaceField)
     .setTimestamp();
@@ -109,7 +120,11 @@ export async function execute(interaction: CommandInteraction) {
     ephemeral: true,
   });
 
-  const buttonReply = await interaction.channel?.awaitMessageComponent({ componentType: 'BUTTON' });
+  const interactionMessage = await interaction.fetchReply();
+
+  if (!(interactionMessage instanceof Message)) { return; }
+
+  const buttonReply = await interactionMessage.awaitMessageComponent({ componentType: 'BUTTON' });
   if (!buttonReply) {
     return;
   }
@@ -137,6 +152,11 @@ export async function execute(interaction: CommandInteraction) {
       errorMessage = e.message;
     }
 
-    await interaction.followUp({ content: errorMessage, ephemeral: true });
+    try {
+      await interaction.followUp({ content: errorMessage, ephemeral: true });
+    }
+    catch (error) {
+      console.log('Error trying to follow up add-author', error);
+    }
   }
 }
