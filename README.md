@@ -1,17 +1,24 @@
-# discord-resource-bot
+# DEVIE Bot 🤖
+>it's probably nothing
 
 ## TL;DR
 
-This bot will allow members of the DAO to use `/slash` commands in Discord to interact with our Airtable knowledge base.
+Devie is a discord bot by the devs for the devs. Currently acts as an aggregator of content for the #newsletter team. Also, this bot will allow members of the DAO to use `/slash` commands in Discord to interact with our Airtable knowledgebase. Will be expanded on greatly in the future.  ✨
+
+## How it Works
+
+1. Upvote posts in either `#🔮-probably-nothing` or `#learning-resources` by reacting with a 📰
+2. Five 📰 will trigger the bot to post into the `#newsletter` channel (might be updated)
+3. The team will use these votes to further curate the newsletter 🤙
 
 ## Development Setup
 
-1. Fork the [`discord-resource-bot` repository](https://github.com/Developer-DAO/discord-resource-bot) into your GitHub account
+1. Fork the [`devie-bot` repository](https://github.com/Developer-DAO/devie-bot) into your GitHub account
 
 2. Clone the fork to your local system
 
 ```bash
-git clone git@github.com:YOUR_USER_NAME/discord-resource-bot.git
+git clone git@github.com:YOUR_USER_NAME/devie-bot.git
 ```
 
 3. Install Node modules
@@ -26,7 +33,7 @@ npm install
 touch .env
 ```
 
-5. Follow [this tutorial](https://discordjs.guide/preparations/setting-up-a-bot-application.html) to create a Discord bot. Then, update your `.env` with the `DISCORD_TOKEN` and `CLIENT_ID` values created during the tutorial.
+5. Follow [this tutorial](https://discordjs.guide/preparations/setting-up-a-bot-application.html) to create a Discord bot. Then, update your `.env` with the `DISCORD_TOKEN`, `CLIENT_ID` values created during the tutorial.
 
 ```bash
 # .env
@@ -35,12 +42,14 @@ DISCORD_TOKEN=abc
 CLIENT_ID=123
 ```
 
-6. We also need to add our `GUILD_ID` to the `.env` file. This can be found in your Discord server settings under Widget > Server ID.
+6. We also need to add our `GUILD_ID` to the `.env` file. This can be found in your Discord server settings under Widget > Server ID. We also need `POST_TO` and `CURATE_FROM` for the curation portion.
 
 ```bash
 # .env
 
 GUILD_ID=xyz
+POST_TO=id
+CURATE_FROM=id,id,id
 ```
 
 7. Deploy your commands to the bot created above
@@ -85,4 +94,4 @@ See [Heroku](docs/heroku.md) for more information.
 
 ## Support
 
-Please ping `@NoahH` in the discord should you have any questions!
+Please reach out in the bot channel for support: `DAO PROJECTS > discord-bot`
