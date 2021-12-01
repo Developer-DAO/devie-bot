@@ -7,7 +7,7 @@ Devie is a discord bot by the devs for the devs. Currently acts as an aggregator
 
 ## How it Works
 
-1. Upvote posts in either `#🔮-probably-nothing` or `#learning-resources` by reacting with a 📰
+1. Upvote posts in either `#🔮-probably-nothing` or `#learning-resources` by reacting with a 📰 (:newspaper:)
 2. Five 📰 will trigger the bot to post into the `#newsletter` channel (might be updated)
 3. The team will use these votes to further curate the newsletter 🤙
 
@@ -42,7 +42,7 @@ DISCORD_TOKEN=abc
 CLIENT_ID=123
 ```
 
-6. We also need to add our `GUILD_ID` to the `.env` file. This can be found in your Discord server settings under Widget > Server ID. We also need `POST_TO` and `CURATE_FROM` for the curation portion.
+6. We also need to add our `GUILD_ID` to the `.env` file. We also need `POST_TO`, `CURATE_FROM` and `POST_THRESHOLD` for the curation portion. In discord, with developer mode enabled, right clicking any avatar or channel name will present a `Copy ID` option.
 
 ```bash
 # .env
@@ -50,15 +50,10 @@ CLIENT_ID=123
 GUILD_ID=xyz
 POST_TO=id
 CURATE_FROM=id,id,id
+POST_THRESHOLD=5
 ```
 
-7. Deploy your commands to the bot created above
-
-```bash
-npm run deploy:commands
-```
-
-8. Start the bot server
+7. Start the bot server
 
 ```bash
 npm run dev
